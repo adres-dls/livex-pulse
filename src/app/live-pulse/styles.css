@@ -1,0 +1,411 @@
+/*
+ * Live Pulse — local design tokens
+ *
+ * A self-contained copy of exactly the design tokens this feature uses,
+ * lifted verbatim from `@adres/design-system` + `@adres/brand-adrec` (Adrec
+ * theme, LIVEX 2026 booth build) — colors, type scale, spacing scale, radii,
+ * shadows. The goal is pixel-identical output with zero runtime dependency
+ * on the DS: this file is the ONLY stylesheet the live-pulse route needs.
+ *
+ * Deliberately NOT copied (unused by this feature, so omitted rather than
+ * carried as dead weight):
+ *   - tertiary / destructive / warning / accent / chart-* color families
+ *   - the `animate-in`/`fade-in`/`zoom-in`/`slide-in-from-*` utilities the DS's
+ *     Popover references — dari never installed the plugin that defines them,
+ *     so they're already no-ops in production today; nothing to preserve.
+ *
+ * Source of truth (for future re-sync if the Adrec brand palette changes):
+ *   adresx/packages/brand-adrec/src/theme.css
+ *   adresx/packages/design-system/src/styles/base.css
+ *   adresx/packages/design-system/src/styles/typography.css
+ *   adresx/packages/design-system/src/styles/motion.css
+ */
+
+@import "tailwindcss";
+
+/* Theme toggle is a `.dark` class (see `useKioskTheme`), not OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Layer 1 — raw color primitives + semantic aliases (Adrec brand values)
+ * HSL triplets (no `hsl()` wrapper) so they compose as `hsl(var(--token))`,
+ * matching the DS's own convention.
+ * ───────────────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --white: 0 0% 100%;
+
+    /* Neutral — pure grey */
+    --neutral-50:  0 0% 95%;
+    --neutral-100: 0 0% 90%;
+    --neutral-200: 0 0% 85%;
+    --neutral-300: 0 0% 80%;
+    --neutral-400: 0 0% 62%;
+    --neutral-500: 0 0% 46%;
+    --neutral-700: 0 0% 22%;
+    --neutral-800: 0 0% 15%;
+    --neutral-900: 0 0% 9%;
+    --neutral-950: 0 0% 5%;
+
+    /* Primary — gold */
+    --primary-50:  54 31% 98%;
+    --primary-100: 54 31% 94%;
+    --primary-200: 54 31% 88%;
+    --primary-300: 54 31% 80%;
+    --primary-500: 54 31% 60%;
+    --primary-600: 54 31% 50%;
+    --primary-700: 54 31% 40%;
+    --primary-800: 54 31% 30%;
+    --primary-900: 54 31% 20%;
+    --primary-950: 54 31% 10%;
+
+    /* Secondary — sage */
+    --secondary-50:  105 25% 98%;
+    --secondary-100: 105 25% 94%;
+    --secondary-200: 105 25% 88%;
+    --secondary-300: 105 25% 80%;
+    --secondary-500: 105 25% 60%;
+    --secondary-600: 105 25% 50%;
+    --secondary-700: 105 25% 40%;
+    --secondary-800: 105 25% 30%;
+    --secondary-900: 105 25% 20%;
+    --secondary-950: 105 25% 10%;
+
+    /* Success */
+    --success-50:  158 80% 97%;
+    --success-100: 158 80% 94%;
+    --success-200: 158 80% 88%;
+    --success-300: 158 80% 80%;
+    --success-500: 158 80% 62%;
+    --success-600: 158 80% 44%;
+    --success-700: 158 80% 32%;
+    --success-800: 158 80% 18%;
+    --success-900: 158 80% 10%;
+    --success-950: 158 80% 6%;
+
+    /* Named aliases — LIGHT (weak/strong emphasis scale) */
+    --neutral:            var(--neutral-500);
+    --neutral-muted:      var(--neutral-50);
+    --neutral-weakest:    var(--neutral-100);
+    --neutral-weaker:     var(--neutral-200);
+    --neutral-weak:       var(--neutral-300);
+    --neutral-strong:     var(--neutral-700);
+    --neutral-stronger:   var(--neutral-800);
+    --neutral-strongest:  var(--neutral-900);
+
+    --primary-muted:      var(--primary-50);
+    --primary-weakest:    var(--primary-100);
+    --primary-weaker:     var(--primary-200);
+    --primary-weak:       var(--primary-300);
+    --primary-strong:     var(--primary-700);
+    --primary-stronger:   var(--primary-800);
+    --primary-strongest:  var(--primary-900);
+
+    --secondary-muted:    var(--secondary-50);
+    --secondary-weakest:  var(--secondary-100);
+    --secondary-weaker:   var(--secondary-200);
+    --secondary-weak:     var(--secondary-300);
+    --secondary-strong:   var(--secondary-700);
+    --secondary-stronger: var(--secondary-800);
+    --secondary-strongest: var(--secondary-900);
+
+    --success-muted:      var(--success-50);
+    --success-weakest:    var(--success-100);
+    --success-weaker:     var(--success-200);
+    --success-weak:       var(--success-300);
+    --success-strong:     var(--success-700);
+    --success-stronger:   var(--success-800);
+    --success-strongest:  var(--success-900);
+
+    /* Semantic tokens — LIGHT */
+    --background:           var(--neutral-muted);
+    --foreground:            var(--neutral-strong);
+    --foreground-strong:     var(--neutral-strongest);
+
+    --card:                  var(--white);
+    --card-foreground:       var(--neutral-strong);
+    --card-border-color:     transparent;
+    --card-shadow:           var(--shadow-sm);
+
+    --popover:               var(--white);
+    --popover-foreground:    var(--neutral-strong);
+
+    --primary:               var(--primary-500);
+    --primary-foreground:    var(--primary-strong);
+
+    --secondary:             var(--secondary-500);
+    --secondary-foreground:  var(--secondary-strong);
+
+    --muted:                 var(--neutral-muted);
+    --muted-foreground:      var(--neutral);
+
+    --success:               var(--success-500);
+    --success-foreground:    var(--success-strong);
+
+    --border:                var(--neutral-weaker);
+    --input:                 var(--neutral-weak);
+    --ring:                  var(--primary);
+
+    /* Shadow scale — neutral elevation. */
+    --shadow-color: var(--neutral-900);
+    --shadow-sm: hsl(var(--shadow-color) / 0.04) 0px 0px 0px 1px, hsl(var(--shadow-color) / 0.04) 0px 0.5625px 0.5625px -0.28125px, hsl(var(--shadow-color) / 0.04) 0px 1.6875px 1.6875px -0.84375px, hsl(var(--shadow-color) / 0.04) 0px 3.375px 3.375px -1.6875px, hsl(var(--shadow-color) / 0.04) 0px 6.75px 6.75px -3.375px, hsl(var(--shadow-color) / 0.04) 0px 13.5px 13.5px -6.75px;
+    --shadow-md: hsl(var(--shadow-color) / 0.04) 0px 0px 0px 1px, hsl(var(--shadow-color) / 0.04) 0px 1px 1px -0.5px, hsl(var(--shadow-color) / 0.04) 0px 3px 3px -1.5px, hsl(var(--shadow-color) / 0.04) 0px 6px 6px -3px, hsl(var(--shadow-color) / 0.04) 0px 12px 12px -6px, hsl(var(--shadow-color) / 0.04) 0px 24px 24px -12px;
+
+    /* Adrec radius ramp (brand override — smaller than the DS default). */
+    --radius-xs:    0.125rem;
+    --radius-sm:    0.25rem;
+    --radius:       0.375rem;
+    --radius-md:    0.5rem;
+    --radius-lg:    1rem;
+    --radius-xl:    1.5rem;
+    --radius-full:  9999px;
+    --radius-badge: var(--radius-full);
+    --input-radius: var(--radius-sm);
+
+    /* Spacing scale — 4px base, named stops (`gap-md`, `p-4xl`, …). */
+    --spacing-2xs: 0.25rem;
+    --spacing-xs:  0.5rem;
+    --spacing-sm:  0.75rem;
+    --spacing-md:  1rem;
+    --spacing-lg:  1.25rem;
+    --spacing-xl:  1.5rem;
+    --spacing-2xl: 2rem;
+    --spacing-3xl: 2.5rem;
+    --spacing-4xl: 3rem;
+    --spacing-5xl: 4rem;
+    --spacing-6xl: 6rem;
+
+    /* Type scale — overrides Tailwind's stock `text-*` sizes where Adres
+     * diverges (xl/2xl/3xl/4xl/5xl); xs/sm/base/lg coincide with stock so
+     * they're listed for completeness rather than because they differ. */
+    --text-3xs:  0.625rem;   /* 10px */
+    --text-2xs:  0.6875rem;  /* 11px */
+    --text-xs:   0.75rem;    /* 12px */
+    --text-sm:   0.875rem;   /* 14px */
+    --text-base: 1rem;       /* 16px */
+    --text-lg:   1.125rem;   /* 18px */
+    --text-xl:   1.375rem;   /* 22px */
+    --text-2xl:  1.75rem;    /* 28px */
+    --text-3xl:  2.25rem;    /* 36px */
+    --text-4xl:  3rem;       /* 48px */
+    --text-5xl:  4rem;       /* 64px */
+
+    /* Motion — used by `.transition-snappy` (Toggle track/thumb). */
+    --motion-fast:     160ms;
+    --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+    --font-family-sans:    "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-family-display: var(--font-family-sans);
+  }
+
+  /* Semantic tokens — DARK (`.dark` class, toggled by `useKioskTheme`). */
+  :root.dark {
+    --background:            var(--neutral-weakest);
+    --foreground:            var(--neutral-strong);
+    --foreground-strong:     var(--neutral-100);
+
+    --card:                  var(--neutral-muted);
+    --card-foreground:       var(--neutral-strong);
+
+    --popover:               var(--neutral-muted);
+    --popover-foreground:    var(--neutral-400);
+
+    --primary:               var(--primary-500);
+    --primary-foreground:    var(--primary-muted);
+
+    --secondary:             var(--secondary-500);
+    --secondary-foreground:  var(--secondary-stronger);
+
+    --muted:                 var(--neutral-weaker);
+    --muted-foreground:      var(--neutral);
+
+    --success:               var(--success-500);
+    --success-foreground:    var(--success-muted);
+
+    --border:                var(--neutral-weaker);
+    --input:                 var(--neutral-weak);
+    --ring:                  var(--primary);
+
+    --neutral-muted:      var(--neutral-950);
+    --neutral-weakest:    var(--neutral-900);
+    --neutral-weaker:     var(--neutral-800);
+    --neutral-weak:       var(--neutral-700);
+    --neutral-strong:     var(--neutral-300);
+    --neutral-stronger:   var(--neutral-200);
+    --neutral-strongest:  var(--neutral-100);
+
+    --primary-muted:      var(--primary-950);
+    --primary-weakest:    var(--primary-800);
+    --primary-weaker:     var(--primary-700);
+    --primary-weak:       var(--primary-600);
+    --primary-strong:     var(--primary-300);
+    --primary-stronger:   var(--primary-200);
+    --primary-strongest:  var(--primary-100);
+
+    --secondary-muted:    var(--secondary-950);
+    --secondary-weakest:  var(--secondary-800);
+    --secondary-weaker:   var(--secondary-700);
+    --secondary-weak:     var(--secondary-600);
+    --secondary-strong:   var(--secondary-300);
+    --secondary-stronger: var(--secondary-200);
+    --secondary-strongest: var(--secondary-100);
+
+    --success-muted:      var(--success-900);
+    --success-weakest:    var(--success-800);
+    --success-weaker:     var(--success-700);
+    --success-weak:       var(--success-600);
+    --success-strong:     var(--success-300);
+    --success-stronger:   var(--success-200);
+    --success-strongest:  var(--success-100);
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Layer 2 — expose the semantic tokens as Tailwind utilities
+ * (`bg-primary`, `text-foreground-strong`, `border-border`, …). `inline` so
+ * these stay live `var()` references — required for the `.dark` class
+ * switch above to actually repaint anything.
+ * ───────────────────────────────────────────────────────────────────────── */
+@theme inline {
+  --color-background:          hsl(var(--background));
+  --color-foreground:          hsl(var(--foreground));
+  --color-foreground-strong:   hsl(var(--foreground-strong));
+
+  --color-card:                hsl(var(--card));
+  --color-card-foreground:     hsl(var(--card-foreground));
+
+  --color-popover:             hsl(var(--popover));
+  --color-popover-foreground:  hsl(var(--popover-foreground));
+
+  --color-primary:             hsl(var(--primary));
+  --color-primary-foreground:  hsl(var(--primary-foreground));
+  --color-primary-muted:       hsl(var(--primary-muted));
+  --color-primary-weakest:     hsl(var(--primary-weakest));
+  --color-primary-weaker:      hsl(var(--primary-weaker));
+  --color-primary-weak:        hsl(var(--primary-weak));
+  --color-primary-strong:      hsl(var(--primary-strong));
+  --color-primary-stronger:    hsl(var(--primary-stronger));
+  --color-primary-strongest:   hsl(var(--primary-strongest));
+
+  --color-secondary:            hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-muted:      hsl(var(--secondary-muted));
+  --color-secondary-weakest:    hsl(var(--secondary-weakest));
+  --color-secondary-weaker:     hsl(var(--secondary-weaker));
+  --color-secondary-weak:       hsl(var(--secondary-weak));
+  --color-secondary-strong:     hsl(var(--secondary-strong));
+  --color-secondary-stronger:   hsl(var(--secondary-stronger));
+  --color-secondary-strongest:  hsl(var(--secondary-strongest));
+
+  --color-muted:                hsl(var(--muted));
+  --color-muted-foreground:     hsl(var(--muted-foreground));
+
+  --color-success:              hsl(var(--success));
+  --color-success-foreground:   hsl(var(--success-foreground));
+  --color-success-muted:        hsl(var(--success-muted));
+  --color-success-weakest:      hsl(var(--success-weakest));
+  --color-success-weaker:       hsl(var(--success-weaker));
+  --color-success-weak:         hsl(var(--success-weak));
+  --color-success-strong:       hsl(var(--success-strong));
+  --color-success-stronger:     hsl(var(--success-stronger));
+  --color-success-strongest:    hsl(var(--success-strongest));
+
+  --color-border:  hsl(var(--border));
+  --color-input:   hsl(var(--input));
+  --color-ring:    hsl(var(--ring));
+
+  --font-sans:    var(--font-family-sans);
+  --font-display: var(--font-family-display);
+
+  --radius-xs:    var(--radius-xs);
+  --radius-sm:    var(--radius-sm);
+  --radius-md:    var(--radius-md);
+  --radius-lg:    var(--radius-lg);
+  --radius-xl:    var(--radius-xl);
+  --radius-full:  var(--radius-full);
+  --radius-badge: var(--radius-badge);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Typography — the exact `t-*` classes this feature uses, copied verbatim
+ * from the DS's typography.css (`@apply` targets are all either native
+ * Tailwind utilities or resolve against the theme tokens defined above).
+ * ───────────────────────────────────────────────────────────────────────── */
+@utility t-display-2xl {
+  @apply font-display text-7xl font-semibold leading-18 tracking-tighter text-foreground-strong;
+}
+
+@utility t-display-xl {
+  @apply font-display text-[4rem] font-semibold leading-16 tracking-tighter text-foreground-strong;
+}
+
+@utility t-display-sm {
+  @apply font-display text-3xl font-semibold leading-10 tracking-tight text-foreground-strong;
+}
+
+@utility t-h1 {
+  @apply text-2xl font-semibold leading-7 tracking-tight text-foreground-strong;
+}
+
+@utility t-h2 {
+  @apply text-xl font-semibold leading-7 tracking-tight text-foreground-strong;
+}
+
+@utility t-h3 {
+  @apply text-lg font-semibold leading-6 tracking-tight text-foreground-strong;
+}
+
+@utility t-body-lg {
+  @apply text-lg leading-6.5;
+}
+
+@utility t-body-md {
+  @apply text-base leading-snug;
+}
+
+@utility t-body-sm {
+  @apply text-sm leading-snug;
+}
+
+@utility t-caption {
+  @apply text-xs font-normal leading-tight;
+}
+
+@utility t-label-lg {
+  @apply text-lg font-medium leading-none;
+}
+
+@utility t-label-md {
+  @apply text-base font-medium leading-none;
+}
+
+@utility t-label-sm {
+  @apply text-sm font-medium leading-none;
+}
+
+@utility t-overline {
+  font-size: var(--text-3xs);
+  @apply font-semibold leading-none tracking-widest uppercase;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Motion — `.transition-snappy` (Toggle track/thumb hover/press feedback).
+ * ───────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .transition-snappy {
+    transition-duration: var(--motion-fast);
+    transition-timing-function: var(--motion-ease-out);
+  }
+}

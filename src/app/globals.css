@@ -1,0 +1,57 @@
+/*
+ * Livex Pulse (Adrec) globals.
+ *
+ * Import order is load-bearing (matches auction-adrec-v1 and the sibling apps):
+ *   1. Tailwind entry   — @theme defaults, preflight, utilities
+ *   2. Dark variant     — key `dark:` off the `.dark` class, NOT the OS scheme
+ *   3. @source          — Tailwind must see the DS class names (they live in
+ *                          node_modules, excluded from auto-detection) to emit
+ *                          their named-scale utilities; must precede DS styles.
+ *   4. Adrec brand      — registers :root token values before the DS maps them.
+ *   5. Design system    — maps semantic tokens to utilities + base primitives
+ *                          (spacing/radius/shadow/typography) and registers the
+ *                          weak/strong colour scale as @theme utilities. All
+ *                          type classes (t-display-*, t-h1…t-h6, t-body-*,
+ *                          t-label-*, t-overline, …) come from here — the app
+ *                          does not define or override any of its own.
+ *
+ * Adrec's typeface is Helvetica Neue (system font) — no web font to load.
+ */
+
+@import "tailwindcss";
+
+/* Tailwind 4 defaults `dark:` to `prefers-color-scheme`; the app toggles theme
+ * via a `.dark` class on <html>. Re-point the variant at that class so `dark:`
+ * utilities follow the in-app toggle, not the OS. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../../node_modules/@adres/design-system/src";
+
+@import "@adres/brand-adrec/theme.css";
+@import "@adres/design-system/styles";
+
+/*
+ * Livex Pulse-only primary color override.
+ *
+ * The shared @adres/brand-adrec package defines Adrec's primary as gold
+ * (hsl(54 31% 52%)) — that's used by every app on the Adrec brand theme.
+ * This app instead needs hsl(26 87% 65%) (#F39B58, warm amber/orange), so
+ * the primary primitive scale is re-declared here rather than upstream —
+ * scoped to this app only, other Adrec apps are unaffected. Hue (26) and
+ * saturation (87%) are held constant across the ramp, matching the shape of
+ * the upstream scale; only the 500 step's lightness (65%) is exact to spec,
+ * `--primary` resolves to `--primary-500` in theme.css.
+ */
+:root[data-brand="adrec"] {
+  --primary-50:  26 87% 98%;
+  --primary-100: 26 87% 94%;
+  --primary-200: 26 87% 88%;
+  --primary-300: 26 87% 80%;
+  --primary-400: 26 87% 72%;
+  --primary-500: 26 87% 65%;
+  --primary-600: 26 87% 50%;
+  --primary-700: 26 87% 40%;
+  --primary-800: 26 87% 30%;
+  --primary-900: 26 87% 20%;
+  --primary-950: 26 87% 10%;
+}
