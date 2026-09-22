@@ -12,9 +12,9 @@
     "clean": "rm -rf .next"
   },
   "dependencies": {
-    "@adres/brand-adrec": "file:../adresx/packages/brand-adrec",
+    "@adres/brand-adrec": "^0.1.1",
     "@adres/brand-contract": "^0.1.0",
-    "@adres/design-system": "file:../adresx/packages/design-system",
+    "@adres/design-system": "^0.1.6",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
     "@radix-ui/react-avatar": "^1.1.11",
