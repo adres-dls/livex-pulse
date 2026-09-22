@@ -1,14 +1,19 @@
 "use client"
 
-import { Badge, Card } from "@adres/design-system"
+import { Badge, Card, cn } from "@adres/design-system"
 import {
   AedAmount,
   BADGE_VARIANT,
   Sparkline,
   SettingsMenu,
   formatAED,
+  kioskCardBgClass,
+  kioskCardStyle,
+  kioskThemeStyle,
+  kioskTitleClass,
   useClock,
   useKioskTheme,
+  type KioskColorTheme,
   type KioskThemeMode,
   type MarketState,
   type PanelTone,
@@ -34,7 +39,7 @@ const MARKET: MarketState = {
  * and theme logic with the standard board (see `../shared`).
  */
 export function LivePulseDisplayWide() {
-  const { mode, setMode } = useKioskTheme()
+  const { mode, setMode, theme, setTheme } = useKioskTheme()
   const { time, sessionStart } = useClock()
   const market = MARKET
   const avgTransactionValue =
@@ -47,43 +52,57 @@ export function LivePulseDisplayWide() {
     // wrapper's `overflow-auto` can scroll to it instead of clipping it. On
     // an actual 6048×840 kiosk window there's nothing to scroll; anywhere
     // smaller, the whole board is still reachable by scrolling.
-    <div className="fixed inset-0 overflow-auto bg-background">
+    //
+    // `style` carries `theme`'s CSS-variable overrides (see `kioskThemeStyle`)
+    // — set here, on the common ancestor of the header and the canvas below,
+    // so both pick it up through inheritance with no per-element changes.
+    <div className="fixed inset-0 overflow-auto bg-background" style={kioskThemeStyle(theme, mode)}>
       {/* `fixed` to the real viewport, not the canvas — a `sticky` header
           re-anchors to whatever edge of the scroll container it's stuck
           against, which visibly snaps its own padding away the moment it
           starts sticking. `fixed` just never moves, full stop. Its height
           (`h-28`) matches the `pt-28` reserved below so the card row still
           lands exactly where it would if the header were still in flow. */}
-      <Header time={time} mode={mode} onModeChange={setMode} />
+      <Header time={time} mode={mode} onModeChange={setMode} theme={theme} onThemeChange={setTheme} />
 
       <div className="relative h-210 w-1512 text-foreground">
         <div className="relative z-10 flex h-full flex-col px-2xl pb-xl pt-28">
           <div className="grid min-h-0 flex-1 grid-cols-7 gap-sm">
             <StatCard
+              theme={theme}
+              mode={mode}
               label="Total transactions · today"
               value={<CountValue value={market.transactionsToday} />}
               footer={<p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">Session started {sessionStart}</p>}
             />
 
             <StatCard
+              theme={theme}
+              mode={mode}
               label="Total market value · today"
               value={<CurrencyValue value={market.totalMarketValue} />}
-              footer={<Sparkline className="h-16 w-full text-primary" />}
+              footer={<Sparkline className={cn("h-16 w-full", kioskTitleClass(theme))} />}
             />
 
             <StatCard
+              theme={theme}
+              mode={mode}
               label="Avg. transaction value"
               value={<CurrencyValue value={avgTransactionValue} />}
               footer={<p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">Across all live groups</p>}
             />
 
             <StatCard
+              theme={theme}
+              mode={mode}
               label="Top transaction · today"
               value={<CurrencyValue value={market.topTransactionValue} />}
               footer={<p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">Sell · Off-plan · Masdar City</p>}
             />
 
             <Panel
+              theme={theme}
+              mode={mode}
               tone="primary"
               title="Sell Transactions"
               subtitle="Off-plan & ready unit sales"
@@ -98,6 +117,8 @@ export function LivePulseDisplayWide() {
               totalValue={market.sell.value}
             />
             <Panel
+              theme={theme}
+              mode={mode}
               tone="secondary"
               title="Development Interest"
               subtitle="Expression of Interest (EOI) service"
@@ -108,6 +129,8 @@ export function LivePulseDisplayWide() {
               totalValue={0}
             />
             <Panel
+              theme={theme}
+              mode={mode}
               tone="primary"
               title="Lease Transactions"
               subtitle="New contracts & renewals"
@@ -133,10 +156,14 @@ function Header({
   time,
   mode,
   onModeChange,
+  theme,
+  onThemeChange,
 }: {
   time: string
   mode: KioskThemeMode
   onModeChange: (mode: KioskThemeMode) => void
+  theme: KioskColorTheme
+  onThemeChange: (theme: KioskColorTheme) => void
 }) {
   return (
     // Fixed to the real viewport — this board is previewed at widths far
@@ -147,7 +174,11 @@ function Header({
       <div className="flex items-center gap-lg">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={mode === "dark" ? "/images/logo/livex-white-logo.png" : "/images/logo/livex-logo.png"}
+          src={
+            mode === "dark" || theme === "theme1"
+              ? "/images/logo/livex-white-logo.png"
+              : "/images/logo/livex-logo.png"
+          }
           alt="Abu Dhabi Real Estate Centre"
           className="h-16 w-auto"
         />
@@ -169,7 +200,7 @@ function Header({
       </div>
 
       <div className="flex items-center bg-background/70 rounded-full backdrop-blur-xl">
-        <SettingsMenu mode={mode} onModeChange={onModeChange} />
+        <SettingsMenu mode={mode} onModeChange={onModeChange} theme={theme} onThemeChange={onThemeChange} />
       </div>
     </header>
   )
@@ -178,23 +209,34 @@ function Header({
 /* ─── Top stat band ───────────────────────────────────────────────────────── */
 
 function StatCard({
+  theme,
+  mode,
   label,
   value,
   footer,
 }: {
+  theme: KioskColorTheme
+  mode: KioskThemeMode
   label: string
   value: React.ReactNode
   footer?: React.ReactNode
 }) {
   return (
-    <Card variant="default" padding="4xl" className="flex flex-col gap-md bg-card/60 backdrop-blur-xl">
+    <Card
+      variant="default"
+      padding="4xl"
+      className={cn("flex flex-col gap-md", kioskCardBgClass(theme))}
+      style={kioskCardStyle(theme, mode)}
+    >
       <div className="flex flex-col gap-xl">
         {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
             even though this header is a single line, reserving the same
             space keeps the value below starting at the same height on
             every card in the row. */}
         <div className="flex h-40 items-start">
-          <span className="font-display text-4xl font-semibold leading-12 tracking-tight text-primary">{label}</span>
+          <span className={cn("font-display text-4xl font-semibold leading-12 tracking-tight", kioskTitleClass(theme))}>
+            {label}
+          </span>
         </div>
         {/* Fixed height, bottom-anchored — a labeled value (e.g. "AED" above
             the figure) overflows above this box rather than pushing the
@@ -254,6 +296,8 @@ interface SubMetric {
 }
 
 interface PanelProps {
+  theme: KioskColorTheme
+  mode: KioskThemeMode
   tone: PanelTone
   title: string
   subtitle: string
@@ -265,16 +309,23 @@ interface PanelProps {
   totalValue: number
 }
 
-function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics, totalLabel, totalValue }: PanelProps) {
+function Panel({ theme, mode, tone, title, subtitle, chipValue, count, countLabel, subMetrics, totalLabel, totalValue }: PanelProps) {
   return (
-    <Card variant="default" padding="4xl" className="flex flex-col gap-lg bg-card/60 backdrop-blur-xl">
+    <Card
+      variant="default"
+      padding="4xl"
+      className={cn("flex flex-col gap-lg", kioskCardBgClass(theme))}
+      style={kioskCardStyle(theme, mode)}
+    >
       <div className="flex flex-col gap-xl">
         {/* Fixed height matching `StatCard`'s header — guards against a long
             subtitle wrapping to a second line and pushing the value below
             further down than the single-line stat cards' values. */}
         <div className="flex h-40 items-start justify-between gap-md">
           <div>
-            <h3 className="font-display text-4xl font-semibold leading-12 tracking-tight text-primary">{title}</h3>
+            <h3 className={cn("font-display text-4xl font-semibold leading-12 tracking-tight", kioskTitleClass(theme))}>
+              {title}
+            </h3>
             <p className="mt-2xs text-2xl leading-7 text-muted-foreground">{subtitle}</p>
           </div>
           {chipValue !== undefined && (

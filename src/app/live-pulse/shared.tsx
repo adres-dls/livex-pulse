@@ -1,8 +1,16 @@
 "use client"
 
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react"
 import { AnimatePresence, motion } from "motion/react"
-import { Popover, PopoverContent, PopoverTrigger, Toggle, cn } from "@adres/design-system"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  SegmentedControl,
+  SegmentedControlItem,
+  Toggle,
+  cn,
+} from "@adres/design-system"
 import { Settings } from "lucide-react"
 
 /**
@@ -45,14 +53,122 @@ export function useClock() {
 
 export type KioskThemeMode = "light" | "dark"
 
+/** Colour theme, independent of light/dark `mode` (though `theme1` is
+ *  light-only — see `useKioskTheme`):
+ *   - `default` — the Adrec semantic palette, as everywhere else in the app.
+ *   - `theme1`  — a black page with primary-tinted `Card` surfaces floating
+ *     on it. Text is white/light-grey directly on the page (the header) and
+ *     black/dark-grey inside a card, so each reads correctly against its own
+ *     surface — see `kioskThemeStyle` (page) and `kioskCardStyle` (card). */
+export type KioskColorTheme = "default" | "theme1"
+
+/** Page-root override for each non-default color theme, keyed by `mode` —
+ *  spread as inline `style` on a board's root element so every existing
+ *  `bg-background` / `text-foreground-strong` / `text-muted-foreground`
+ *  class picks up the new values with no per-element changes. Everything
+ *  outside a `Card` (the header) inherits this — white text on a black page.
+ *  `kioskCardStyle` then re-overrides the same three tokens back to solid
+ *  black, scoped to each card, since a card sits on its own primary-tinted
+ *  surface instead. `--primary` itself is left alone. HSL triplets, matching
+ *  every other token here. */
+const KIOSK_THEME_VARS: Record<Exclude<KioskColorTheme, "default">, Record<KioskThemeMode, CSSProperties>> = {
+  theme1: {
+    light: {
+      "--background": "0 0% 0%",
+      "--foreground-strong": "0 0% 100%",
+      "--foreground": "0 0% 100%",
+      "--muted-foreground": "0 0% 65%",
+    } as CSSProperties,
+    dark: {
+      "--background": "var(--primary)",
+      "--foreground-strong": "0 0% 0%",
+      "--foreground": "0 0% 0%",
+      "--muted-foreground": "0 0% 40%",
+    } as CSSProperties,
+  },
+}
+
+/** `Card`-scoped override — spread as inline `style` on every `Card` element
+ *  (in addition to `kioskThemeStyle` on the board root) so its own subtree
+ *  gets the primary-tinted `--card` surface with all-black text (both the
+ *  main and "lighter" tiers — the card is small and busy enough that a grey
+ *  second tier reads as low-contrast rather than de-emphasized), while
+ *  everything outside it keeps the root's white-on-black. See
+ *  `KIOSK_THEME_VARS` for why this needs its own map. */
+const KIOSK_CARD_VARS: Record<Exclude<KioskColorTheme, "default">, Record<KioskThemeMode, CSSProperties>> = {
+  theme1: {
+    light: {
+      // #EBA56C — LIVEX brand guidelines background swatch.
+      "--card": "27 76% 67%",
+      "--foreground-strong": "0 0% 0%",
+      "--foreground": "0 0% 0%",
+      "--muted-foreground": "0 0% 0%",
+    } as CSSProperties,
+    dark: {
+      "--card": "var(--primary-950)",
+      "--foreground-strong": "0 0% 100%",
+      "--foreground": "0 0% 100%",
+      "--muted-foreground": "0 0% 100%",
+    } as CSSProperties,
+  },
+}
+
+/** Inline `style` for a board's root element implementing `theme` — `undefined`
+ *  for `"default"`, so it's a no-op spread (`style={kioskThemeStyle(...)}`). */
+export function kioskThemeStyle(theme: KioskColorTheme, mode: KioskThemeMode): CSSProperties | undefined {
+  return theme === "default" ? undefined : KIOSK_THEME_VARS[theme][mode]
+}
+
+/** Inline `style` for a `Card` element implementing `theme` — `undefined` for
+ *  `"default"` (so it's a no-op spread: `style={kioskCardStyle(...)}`). Use
+ *  alongside `kioskThemeStyle` on the board root, never instead of it. */
+export function kioskCardStyle(theme: KioskColorTheme, mode: KioskThemeMode): CSSProperties | undefined {
+  return theme === "default" ? undefined : KIOSK_CARD_VARS[theme][mode]
+}
+
+/** Card/section title colour — brand primary by default, or the theme's main
+ *  text colour under `theme1` (black in light, white in dark — see
+ *  `KIOSK_CARD_VARS`; a title always lives inside a `Card`), since an
+ *  accent-coloured title reads poorly once the card itself is primary-tinted. */
+export function kioskTitleClass(theme: KioskColorTheme): string {
+  return theme === "theme1" ? "text-foreground-strong" : "text-primary"
+}
+
+/** `Card` background — the default board keeps the translucent `bg-card/60`
+ *  glass look, but `theme1` needs a fully opaque card: the page behind it is
+ *  now black, and a translucent card lets that black bleed through, darkening
+ *  the intended swatch colour enough that `text-muted-foreground` loses
+ *  contrast against it. */
+export function kioskCardBgClass(theme: KioskColorTheme): string {
+  return theme === "theme1" ? "bg-card" : "bg-card/60 backdrop-blur-xl"
+}
+
 /** Drives `.dark` on `<html>` for as long as a board is mounted, independent
  *  of the signed-in app's own theme toggle — defaults to dark, flippable to
  *  light from the settings popover, and restores whatever state it found on
  *  unmount. A `MutationObserver` keeps re-asserting the chosen mode:
  *  `ThemeProvider`'s own mount effect reads the site's stored theme preference
- *  and can otherwise flip the class right back after this one runs. */
+ *  and can otherwise flip the class right back after this one runs.
+ *
+ *  Also owns `theme` (see `KioskColorTheme`) — a plain, DOM-effect-free state
+ *  value, since every color theme is implemented as inline CSS variables on
+ *  the board's own root (`kioskThemeStyle`) rather than a global toggle.
+ *  `theme1` is light-only: selecting it forces `mode` to `"light"` and the
+ *  returned `setMode` then ignores further changes until `theme` switches
+ *  back — the settings popover also disables its toggle in that state (see
+ *  `SettingsMenu`), so this is a belt-and-braces guard, not the only one. */
 export function useKioskTheme() {
-  const [mode, setMode] = useState<KioskThemeMode>("dark")
+  const [mode, setModeState] = useState<KioskThemeMode>("dark")
+  const [theme, setTheme] = useState<KioskColorTheme>("default")
+
+  useEffect(() => {
+    if (theme === "theme1") setModeState("light")
+  }, [theme])
+
+  const setMode = (next: KioskThemeMode) => {
+    if (theme === "theme1") return
+    setModeState(next)
+  }
 
   useEffect(() => {
     const root = document.documentElement
@@ -75,7 +191,7 @@ export function useKioskTheme() {
     }
   }, [mode])
 
-  return { mode, setMode }
+  return { mode, setMode, theme, setTheme }
 }
 
 /* ─── Simulated live market feed ─────────────────────────────────────────── */
@@ -330,14 +446,19 @@ export function Sparkline({ className }: { className?: string }) {
 
 /* ─── Settings popover ────────────────────────────────────────────────────── */
 
-/** Gear icon + popover with the dark/light switch for the kiosk's own forced
- *  theme (see `useKioskTheme`) — identical on every board. */
+/** Gear icon + popover with the dark/light switch and the colour-theme picker
+ *  for the kiosk's own forced theme (see `useKioskTheme`) — identical on every
+ *  board. */
 export function SettingsMenu({
   mode,
   onModeChange,
+  theme,
+  onThemeChange,
 }: {
   mode: KioskThemeMode
   onModeChange: (mode: KioskThemeMode) => void
+  theme: KioskColorTheme
+  onThemeChange: (theme: KioskColorTheme) => void
 }) {
   return (
     <Popover>
@@ -351,12 +472,25 @@ export function SettingsMenu({
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" size="sm">
-        <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-muted-foreground">Display</span>
+        <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-muted-foreground">Theme</span>
+        <SegmentedControl
+          className="mt-md"
+          size="sm"
+          fullWidth
+          value={theme}
+          onValueChange={(value) => onThemeChange(value as KioskColorTheme)}
+        >
+          <SegmentedControlItem value="default">Default</SegmentedControlItem>
+          <SegmentedControlItem value="theme1">Theme 1</SegmentedControlItem>
+        </SegmentedControl>
+
+        <span className="mt-xl block text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-muted-foreground">Display</span>
         <Toggle
           labelClassName="mt-md w-full justify-between"
           label="Dark theme"
           checked={mode === "dark"}
           onCheckedChange={(checked) => onModeChange(checked ? "dark" : "light")}
+          disabled={theme === "theme1"}
         />
       </PopoverContent>
     </Popover>

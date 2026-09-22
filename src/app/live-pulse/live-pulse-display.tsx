@@ -8,10 +8,15 @@ import {
   Sparkline,
   SettingsMenu,
   formatAED,
+  kioskCardBgClass,
+  kioskCardStyle,
+  kioskThemeStyle,
+  kioskTitleClass,
   useClock,
   useKioskTheme,
   useLiveMarket,
   usePulsingCountUp,
+  type KioskColorTheme,
   type KioskThemeMode,
   type PanelTone,
 } from "./shared"
@@ -31,36 +36,47 @@ const COUNTER_SM = {
  * single-row 6048×840 banner variant, see `wide/live-pulse-display-wide.tsx`.
  */
 export function LivePulseDisplay() {
-  const { mode, setMode } = useKioskTheme()
+  const { mode, setMode, theme, setTheme } = useKioskTheme()
   const { time, sessionStart } = useClock()
   const market = useLiveMarket()
   const avgTransactionValue =
     market.transactionsToday > 0 ? Math.round(market.totalMarketValue / market.transactionsToday) : 0
 
   return (
-    <div className="fixed inset-0 overflow-y-auto bg-background text-foreground">
+    <div
+      className="fixed inset-0 overflow-y-auto bg-background text-foreground"
+      style={kioskThemeStyle(theme, mode)}
+    >
       <div className="relative z-10 flex min-h-full flex-col px-2xl py-xl">
-        <Header time={time} mode={mode} onModeChange={setMode} />
+        <Header time={time} mode={mode} onModeChange={setMode} theme={theme} onThemeChange={setTheme} />
         <div className="mt-xl grid min-h-0 flex-1 grid-cols-4 gap-sm">
           <StatCard
+            theme={theme}
+            mode={mode}
             label="Total transactions · today"
             value={<CountValue value={market.transactionsToday} />}
             footer={<p className="text-xs font-normal leading-tight text-muted-foreground">Session started {sessionStart}</p>}
           />
 
           <StatCard
+            theme={theme}
+            mode={mode}
             label="Total market value · today"
             value={<CurrencyValue value={market.totalMarketValue} />}
-            footer={<Sparkline className="h-9 w-full text-primary" />}
+            footer={<Sparkline className={cn("h-9 w-full", kioskTitleClass(theme))} />}
           />
 
           <StatCard
+            theme={theme}
+            mode={mode}
             label="Avg. transaction value"
             value={<CurrencyValue value={avgTransactionValue} />}
             footer={<p className="text-xs font-normal leading-tight text-muted-foreground">across all live groups</p>}
           />
 
           <StatCard
+            theme={theme}
+            mode={mode}
             label="Top transaction · today"
             value={<CurrencyValue value={market.topTransactionValue} />}
             footer={<p className="text-xs font-normal leading-tight text-muted-foreground">Sell · Off-plan · Masdar City</p>}
@@ -69,6 +85,8 @@ export function LivePulseDisplay() {
 
         <div className="mt-sm grid min-h-0 flex-2 grid-cols-3 gap-sm">
           <Panel
+            theme={theme}
+            mode={mode}
             tone="primary"
             title="Sell Transactions"
             subtitle="Off-plan & ready unit sales"
@@ -83,6 +101,8 @@ export function LivePulseDisplay() {
             totalValue={market.sell.value}
           />
           <Panel
+            theme={theme}
+            mode={mode}
             tone="secondary"
             title="Development Interest"
             subtitle="Expression of Interest (EOI) service"
@@ -93,6 +113,8 @@ export function LivePulseDisplay() {
             totalValue={0}
           />
           <Panel
+            theme={theme}
+            mode={mode}
             tone="primary"
             title="Lease Transactions"
             subtitle="New contracts & renewals"
@@ -117,17 +139,25 @@ function Header({
   time,
   mode,
   onModeChange,
+  theme,
+  onThemeChange,
 }: {
   time: string
   mode: KioskThemeMode
   onModeChange: (mode: KioskThemeMode) => void
+  theme: KioskColorTheme
+  onThemeChange: (theme: KioskColorTheme) => void
 }) {
   return (
     <header className="flex items-center justify-between gap-xl">
       <div className="flex items-center gap-md">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={mode === "dark" ? "/images/logo/livex-white-logo.png" : "/images/logo/livex-logo.png"}
+          src={
+            mode === "dark" || theme === "theme1"
+              ? "/images/logo/livex-white-logo.png"
+              : "/images/logo/livex-logo.png"
+          }
           alt="Abu Dhabi Real Estate Centre"
           className="h-12 w-auto"
         />
@@ -148,7 +178,7 @@ function Header({
           <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase">Live</span>
         </Badge>
         <span className="text-xl font-semibold leading-7 tracking-tight text-foreground-strong tabular-nums">{time}</span>
-        <SettingsMenu mode={mode} onModeChange={onModeChange} />
+        <SettingsMenu mode={mode} onModeChange={onModeChange} theme={theme} onThemeChange={onThemeChange} />
       </div>
     </header>
   )
@@ -157,17 +187,28 @@ function Header({
 /* ─── Top stat band ───────────────────────────────────────────────────────── */
 
 function StatCard({
+  theme,
+  mode,
   label,
   value,
   footer,
 }: {
+  theme: KioskColorTheme
+  mode: KioskThemeMode
   label: string
   value: React.ReactNode
   footer?: React.ReactNode
 }) {
   return (
-    <Card variant="default" padding="3xl" className="flex flex-col gap-sm bg-card/60 backdrop-blur-xl">
-      <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-primary">{label}</span>
+    <Card
+      variant="default"
+      padding="3xl"
+      className={cn("flex flex-col gap-sm", kioskCardBgClass(theme))}
+      style={kioskCardStyle(theme, mode)}
+    >
+      <span className={cn("text-[0.625rem] font-semibold leading-none tracking-widest uppercase", kioskTitleClass(theme))}>
+        {label}
+      </span>
       <div className="flex flex-1 flex-col justify-center">{value}</div>
       {/* Fixed height (matches the sparkline) so every card reserves the same
           footer space — otherwise a taller footer (the chart) shrinks its
@@ -225,6 +266,8 @@ interface SubMetric {
 }
 
 interface PanelProps {
+  theme: KioskColorTheme
+  mode: KioskThemeMode
   tone: PanelTone
   title: string
   subtitle: string
@@ -236,12 +279,17 @@ interface PanelProps {
   totalValue: number
 }
 
-function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics, totalLabel, totalValue }: PanelProps) {
+function Panel({ theme, mode, tone, title, subtitle, chipValue, count, countLabel, subMetrics, totalLabel, totalValue }: PanelProps) {
   return (
-    <Card variant="default" padding="3xl" className="flex flex-col gap-lg bg-card/60 backdrop-blur-xl">
+    <Card
+      variant="default"
+      padding="3xl"
+      className={cn("flex flex-col gap-lg", kioskCardBgClass(theme))}
+      style={kioskCardStyle(theme, mode)}
+    >
       <div className="flex items-start justify-between gap-md">
         <div>
-          <h3 className="text-lg font-semibold leading-6 tracking-tight text-primary">{title}</h3>
+          <h3 className={cn("text-lg font-semibold leading-6 tracking-tight", kioskTitleClass(theme))}>{title}</h3>
           <p className="mt-2xs text-xs font-normal leading-tight text-muted-foreground">{subtitle}</p>
         </div>
         {chipValue !== undefined && (
