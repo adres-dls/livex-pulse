@@ -158,7 +158,7 @@ const TEXT_STEP: Record<KioskCardTextStep, { base: string; up: string }> = {
   lg: { base: "text-lg", up: "text-xl" },
   xl: { base: "text-xl", up: "text-2xl" },
   "2xl": { base: "text-2xl", up: "text-3xl" },
-  "4xl": { base: "text-4xl", up: "text-5xl" },
+  "4xl": { base: "text-4xl", up: "text-[3.7rem]" },
 }
 
 /** Card copy size — `text-{step}` normally, or one step up when `enlarge`

@@ -149,7 +149,7 @@ export function LivePulseDisplayWide() {
               subtitle="Expression of Interest (EOI) service"
               count={market.development.count}
               countLabel="EOIs today"
-              subMetrics={[{ label: "Registered projects", value: market.development.registeredProjects }]}
+              subMetrics={[{ label: "Registered\nprojects", value: market.development.registeredProjects }]}
               totalLabel="Total Interest Value"
               totalValue={0}
             />
@@ -210,7 +210,7 @@ function Header({
               : "/images/logo/livex-logo.png"
           }
           alt="Abu Dhabi Real Estate Centre"
-          className="h-16 w-auto"
+          className="h-14 w-auto"
         />
         <div className="flex flex-col gap-xs border-s border-border ps-xl">
           <div className="flex items-baseline gap-md">
@@ -291,7 +291,7 @@ function StatCard({
             figure itself down, so the figure's own baseline lands at the
             same height whether or not it has a label above it. */}
         <div className="flex items-end">{value}</div>
-        <div className="flex items-end pt-3xl">{footer}</div>
+        <div className="flex items-end pt-4xl">{footer}</div>
       </div>
     </Card>
   )
@@ -301,7 +301,7 @@ function StatCard({
  *  one typography treatment regardless of what (if anything) labels it. */
 function BigValue({ children }: { children: React.ReactNode }) {
   return (
-    <span className="font-display font-semibold text-foreground-strong text-[14rem] leading-56 tracking-[0.01em] tabular-nums">
+    <span className="font-display font-semibold text-foreground-strong text-[12.6rem] leading-56 tracking-[0.01em] tabular-nums">
       {children}
     </span>
   )
@@ -322,7 +322,7 @@ function ValueBlock({
   children: React.ReactNode
 }) {
   return (
-    <span className="inline-flex flex-col items-start">
+    <span className="inline-flex flex-col items-start gap-md">
       {label && (
         <span className={cn("font-display font-semibold leading-12 tracking-tight text-foreground", kioskCardTextClass("4xl", largeCardText))}>
           {label}
@@ -410,7 +410,7 @@ function Panel({
           >
             {title}
           </h3>
-          <p className={cn("mt-2xs leading-7 text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>{subtitle}</p>
+          <p className={cn("mt-sm leading-7 text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>{subtitle}</p>
         </div>
         {chipValue !== undefined && (
           <Badge
@@ -438,7 +438,12 @@ function Panel({
           <div className="grid grid-cols-1 gap-md">
             {subMetrics.map((m) => (
               <div key={m.label} className="pb-xl flex items-baseline gap-md justify-end">
-                <p className={cn("font-semibold leading-7 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
+                <p
+                  className={cn(
+                    "whitespace-pre-line text-right font-semibold leading-7 tracking-tight text-muted-foreground",
+                    kioskCardTextClass("2xl", largeCardText)
+                  )}
+                >
                   {m.label}
                 </p>
                 <span
@@ -454,7 +459,7 @@ function Panel({
           </div>
         </div>
 
-        <div className="flex items-baseline justify-between pt-md border-t-2 border-border">
+        <div className="flex items-baseline justify-between pt-lg border-t-2 border-border">
           <span className={cn("font-semibold leading-7 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
             {totalLabel}
           </span>
