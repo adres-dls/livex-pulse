@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { LivePulseDisplayWide } from "./live-pulse/wide/live-pulse-display-wide"
+import { LivePulseDisplayWide } from "./live-pulse/live-pulse-display-wide"
 
 export const metadata: Metadata = {
   title: "Live Pulse — Wide (6048×840) — ADREC",
@@ -7,10 +7,8 @@ export const metadata: Metadata = {
 }
 
 /**
- * The 6048×840 wide banner board is the default screen in this app — served
- * directly at `/`. See `./live-pulse/page.tsx` for the standard 16:9 board
- * (`/live-pulse`) and `./live-pulse/wide/page.tsx` for this board's own
- * `/live-pulse/wide` alias.
+ * The 6048×840 wide banner board — fixed for an LED/video wall strip — is the
+ * only screen in this app, served directly at `/`.
  */
 export default function RootPage() {
   return <LivePulseDisplayWide />

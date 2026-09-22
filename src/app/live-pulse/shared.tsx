@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react"
-import { AnimatePresence, motion } from "motion/react"
 import {
   Popover,
   PopoverContent,
@@ -14,12 +13,10 @@ import {
 import { Settings } from "lucide-react"
 
 /**
- * Shared logic + primitives for the "Live Pulse" kiosk boards — the simulated
- * live market feed, the clock, the forced-theme hook, and the small animated
- * building blocks (digit tiles, currency amounts, sparkline, aurora backdrop).
- * Each board (`live-pulse-display.tsx`, `wide/live-pulse-display-wide.tsx`)
- * owns its own layout — card components, header — but shares all of this so
- * the two never drift on what "live" actually means.
+ * Shared logic + primitives for the "Live Pulse" kiosk board — the clock, the
+ * forced-theme hook, and the small building blocks (currency amounts,
+ * sparkline) — kept apart from `live-pulse-display-wide.tsx`'s own layout
+ * (card components, header).
  */
 
 /* ─── Clock ───────────────────────────────────────────────────────────────── */
@@ -148,7 +145,7 @@ export function kioskCardBgClass(theme: KioskColorTheme): string {
 export type KioskCardTextStep = "3xs" | "xs" | "lg" | "xl" | "2xl" | "4xl"
 
 /** Base size ↔ one step up Tailwind's named type scale, for every card text
- *  size in use across both boards (see `kioskCardTextClass`) — `"3xs"` is
+ *  size in use on the board (see `kioskCardTextClass`) — `"3xs"` is
  *  this app's `text-[0.625rem]` overline size, which isn't a named Tailwind
  *  step of its own. Every class name here is a literal string — including
  *  the "base" ones — so Tailwind's scanner generates all of them regardless
@@ -167,9 +164,8 @@ const TEXT_STEP: Record<KioskCardTextStep, { base: string; up: string }> = {
 /** Card copy size — `text-{step}` normally, or one step up when `enlarge`
  *  (the settings popover's "Larger card text" toggle) is on. Every text
  *  element inside a `Card` uses this instead of a literal size class, EXCEPT
- *  the main figure (the standard board's `text-[4rem]` / the wide board's
- *  `BigValue` `text-[14rem]`), which the settings copy calls out as staying
- *  fixed regardless. */
+ *  the main figure (`BigValue`'s `text-[14rem]`), which the settings copy
+ *  calls out as staying fixed regardless. */
 export function kioskCardTextClass(step: KioskCardTextStep, enlarge: boolean): string {
   return enlarge ? TEXT_STEP[step].up : TEXT_STEP[step].base
 }
@@ -229,7 +225,7 @@ export function useKioskTheme() {
   return { mode, setMode, theme, setTheme, largeCardText, setLargeCardText }
 }
 
-/* ─── Simulated live market feed ─────────────────────────────────────────── */
+/* ─── Market snapshot shape ───────────────────────────────────────────────── */
 
 export interface MarketState {
   transactionsToday: number
@@ -238,85 +234,6 @@ export interface MarketState {
   sell: { count: number; offPlan: number; ready: number; value: number }
   development: { count: number; registeredProjects: number }
   lease: { count: number; newCount: number; renewCount: number; value: number }
-}
-
-const INITIAL_MARKET: MarketState = {
-  transactionsToday: 2,
-  totalMarketValue: 1_800_000,
-  topTransactionValue: 1_300_000,
-  sell: { count: 1, offPlan: 1, ready: 0, value: 1_300_000 },
-  development: { count: 0, registeredProjects: 0 },
-  lease: { count: 1, newCount: 0, renewCount: 1, value: 431_000 },
-}
-
-function randomTransactionAmount() {
-  return Math.round((200_000 + Math.random() * 1_800_000) / 10_000) * 10_000
-}
-
-/** One simulated market event: 70% chance it's a sale or a lease (moves the
- *  money figures), 30% chance it's a no-value expression of interest. */
-function simulateMarketEvent(prev: MarketState): MarketState {
-  const roll = Math.random()
-
-  if (roll >= 0.7) {
-    return {
-      ...prev,
-      development: {
-        count: prev.development.count + 1,
-        registeredProjects: prev.development.registeredProjects + 1,
-      },
-    }
-  }
-
-  const amount = randomTransactionAmount()
-  const next: MarketState = {
-    ...prev,
-    transactionsToday: prev.transactionsToday + 1,
-    totalMarketValue: prev.totalMarketValue + amount,
-    topTransactionValue: Math.max(prev.topTransactionValue, amount),
-  }
-
-  if (roll < 0.45) {
-    const isOffPlan = Math.random() < 0.5
-    next.sell = {
-      count: prev.sell.count + 1,
-      offPlan: prev.sell.offPlan + (isOffPlan ? 1 : 0),
-      ready: prev.sell.ready + (isOffPlan ? 0 : 1),
-      value: prev.sell.value + amount,
-    }
-  } else {
-    const isNew = Math.random() < 0.5
-    next.lease = {
-      count: prev.lease.count + 1,
-      newCount: prev.lease.newCount + (isNew ? 1 : 0),
-      renewCount: prev.lease.renewCount + (isNew ? 0 : 1),
-      value: prev.lease.value + amount,
-    }
-  }
-
-  return next
-}
-
-/** Simulates a trickle of new transactions arriving every few seconds — the
- *  "live" feed both boards are named for. Every card wired to it animates its
- *  own change (see `AedAmount`, `DigitTile`). */
-export function useLiveMarket() {
-  const [market, setMarket] = useState(INITIAL_MARKET)
-
-  useEffect(() => {
-    let timeoutId: number
-    const scheduleNext = () => {
-      const delay = 4000 + Math.random() * 5000
-      timeoutId = window.setTimeout(() => {
-        setMarket((prev) => simulateMarketEvent(prev))
-        scheduleNext()
-      }, delay)
-    }
-    scheduleNext()
-    return () => window.clearTimeout(timeoutId)
-  }, [])
-
-  return market
 }
 
 /* ─── Currency formatting + counting animation ───────────────────────────── */
@@ -358,101 +275,10 @@ export function useCountUp(target: number, duration = 700) {
 }
 
 /** A compact AED amount that counts up to `value` whenever it changes. Bare
- *  by design (no unit, no layout) — each board wraps it in its own typography. */
+ *  by design (no unit, no layout) — the board wraps it in its own typography. */
 export function AedAmount({ value, className }: { value: number; className?: string }) {
   const display = useCountUp(value)
   return <span className={cn("tabular-nums", className)}>{formatAED(display)}</span>
-}
-
-/** `useCountUp` plus a brief primary-coloured "pulse" flash on change — the
- *  live-ticker highlight shared by every big figure on both boards
- *  (`CurrencyValue`, `CountValue`). */
-export function usePulsingCountUp(value: number, duration = 700) {
-  const display = useCountUp(value, duration)
-  const [pulsing, setPulsing] = useState(false)
-  const prevValue = useRef(value)
-
-  useEffect(() => {
-    if (prevValue.current === value) return
-    prevValue.current = value
-    setPulsing(true)
-    const id = setTimeout(() => setPulsing(false), 600)
-    return () => clearTimeout(id)
-  }, [value])
-
-  return { display, pulsing }
-}
-
-/* ─── Flip-clock style digit tiles ───────────────────────────────────────── */
-
-export function DigitTile({
-  char,
-  dim,
-  tileClassName,
-  textClassName,
-}: {
-  char: string
-  dim: boolean
-  tileClassName: string
-  textClassName: string
-}) {
-  return (
-    <span
-      className={cn(
-        "relative flex items-center justify-center overflow-hidden rounded-sm border",
-        tileClassName,
-        dim ? "border-border/50 bg-card/50" : "border-border bg-card"
-      )}
-    >
-      {/* Each digit change rolls the old character out and the new one in —
-          `key={char}` makes AnimatePresence treat it as a mount/unmount pair
-          rather than an update, so the tile "flips" on every value change. */}
-      <AnimatePresence initial={false}>
-        <motion.span
-          key={char}
-          initial={{ y: "70%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "-70%", opacity: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className={cn("absolute", textClassName, "tabular-nums", dim && "text-muted-foreground/40")}
-        >
-          {char}
-        </motion.span>
-      </AnimatePresence>
-      <span aria-hidden className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-background" />
-    </span>
-  )
-}
-
-export function FlipCounter({
-  value,
-  digits,
-  tileClassName,
-  textClassName,
-  gapClassName = "gap-1",
-}: {
-  value: number
-  digits: number
-  tileClassName: string
-  textClassName: string
-  gapClassName?: string
-}) {
-  const str = String(value).padStart(digits, "0")
-  const firstActive = str.search(/[1-9]/)
-  const activeFrom = firstActive === -1 ? digits - 1 : firstActive
-  return (
-    <div className={cn("flex", gapClassName)}>
-      {str.split("").map((ch, i) => (
-        <DigitTile
-          key={i}
-          char={ch}
-          dim={i < activeFrom}
-          tileClassName={tileClassName}
-          textClassName={textClassName}
-        />
-      ))}
-    </div>
-  )
 }
 
 /* ─── Sparkline ───────────────────────────────────────────────────────────── */
@@ -483,7 +309,7 @@ export function Sparkline({ className }: { className?: string }) {
 
 /** Gear icon + popover with the dark/light switch, the colour-theme picker,
  *  and the card text-size toggle for the kiosk's own forced theme (see
- *  `useKioskTheme`) — identical on every board. */
+ *  `useKioskTheme`). */
 export function SettingsMenu({
   mode,
   onModeChange,

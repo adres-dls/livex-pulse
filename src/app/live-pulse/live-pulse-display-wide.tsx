@@ -18,7 +18,7 @@ import {
   type KioskThemeMode,
   type MarketState,
   type PanelTone,
-} from "../shared"
+} from "./shared"
 
 // Static snapshot standing in for a day's activity — no live simulation feed
 // on this board, just representative figures for the booth display.
@@ -32,12 +32,10 @@ const MARKET: MarketState = {
 }
 
 /**
- * "Live Pulse" — wide banner variant, fixed at 6048×840px for an LED/video
- * wall strip. All seven cards (the standard board's two rows) sit in a single
- * row here, so every card gets far more width and height than on the
- * standard 16:9 board — type, tiles and spacing are all scaled up to use it
- * rather than floating in extra whitespace. Shares its live data, animation
- * and theme logic with the standard board (see `../shared`).
+ * "Live Pulse" — the kiosk board for the LIVEX exhibition stand, fixed at
+ * 6048×840px for an LED/video wall strip. All seven cards sit in a single
+ * row, sized and spaced to use that width and height rather than floating in
+ * extra whitespace. Shares its clock and theme logic (see `./shared`).
  */
 export function LivePulseDisplayWide() {
   const { mode, setMode, theme, setTheme, largeCardText, setLargeCardText } = useKioskTheme()
