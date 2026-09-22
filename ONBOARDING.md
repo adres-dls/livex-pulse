@@ -29,31 +29,27 @@ setup lives at `/repos/auction-adrec-v1` — mirror it when in doubt.
 
 ## Design system + Adrec theme
 
-The DS and brand are **linked, not vendored** — `file:` deps pointing straight at a sibling
-`adresx` checkout (`/repos/adresx`), the same pattern `madhmoun` uses (see that repo's
-`docs/adres-ds-integration.md` for the general integration guide this is based on). There is
-no local copy of either package's source in this repo, and editing DS source under
-`/repos/adresx` is picked up live by the dev server — no rsync/reinstall step.
+The DS and brand are **installed from npm**, not linked to a sibling checkout. Published
+packages: `@adres/design-system` and `@adres/brand-adrec` on the public registry. Canonical
+source remains the adresx monorepo. There is no local copy of either package's source in
+this repo.
 
 **Wiring (already reflected in the repo — don't drift from it):**
 
-- `package.json`: `"@adres/design-system": "file:../adresx/packages/design-system"`,
-  `"@adres/brand-adrec": "file:../adresx/packages/brand-adrec"`. Because the `file:` target
-  lives *outside* this repo, npm does not install that target's own dependencies — so every
-  runtime dependency the DS/brand need (Radix UI primitives, `clsx`, `class-variance-authority`,
-  `tailwind-merge`, `tailwind-variants`, `sonner`, `@adres/brand-contract`) is declared directly
-  in this repo's own `dependencies` too. If adresx's design-system/brand-adrec `package.json`
-  gains a new runtime dependency, mirror it here and `npm install`.
+- `package.json`: `"@adres/design-system": "^0.1.6"`, `"@adres/brand-adrec": "^0.1.1"`.
+  The DS ships raw TS/TSX, so every runtime dependency it needs (Radix UI primitives, `clsx`,
+  `class-variance-authority`, `tailwind-merge`, `tailwind-variants`, `sonner`,
+  `@adres/brand-contract`) is declared directly in this repo's own `dependencies` too. If a
+  new design-system release adds a runtime dependency, mirror it here and `npm install`.
 - `.npmrc`: `registry=https://registry.npmjs.org/` (public registry only — no private Azure feed)
 - `next.config.mjs`:
   - `transpilePackages: ["@adres/design-system", "@adres/brand-adrec"]`
   - `experimental.optimizePackageImports: ["lucide-react", "motion", "@adres/design-system"]`
   - `webpack: (config) => { config.resolve.symlinks = false; config.watchOptions.followSymlinks = true; ... }`
-    — **load-bearing**: without `resolve.symlinks = false`, webpack resolves the linked
-    packages to their real path in `adresx`, which pulls in *adresx's own* `node_modules/react`
-    — a second React instance alongside this app's, which breaks hooks at runtime ("Invalid
-    hook call"). `followSymlinks` makes the dev-server watcher pick up edits made inside the
-    linked adresx source.
+    — keeps module identity inside this app's `node_modules`. If these packages are switched
+    back to `file:` links into a sibling adresx checkout, webpack would otherwise resolve
+    them to adresx's own `node_modules/react` — a second React instance, which breaks hooks
+    at runtime ("Invalid hook call").
 - `src/app/globals.css` (import order is load-bearing):
   ```css
   @import "tailwindcss";
@@ -71,11 +67,6 @@ no local copy of either package's source in this repo, and editing DS source und
   different values (a past version of this repo did exactly that with a leftover Propify
   typography file — don't reintroduce it). If a needed type size or token doesn't exist,
   that's a signal to extend the upstream DS, not to shadow it locally.
-
-**Requires** a sibling checkout at `/repos/adresx` (i.e. `livex-pulse` and `adresx` as sibling
-directories under the same parent). This link is a local dev convenience, not something a CI
-box or another machine can rely on existing at that exact path — if that ever becomes a
-problem, the fallback is switching back to published npm versions (as `main` currently does).
 
 ## Token contract (STRICT)
 
