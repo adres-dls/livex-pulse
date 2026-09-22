@@ -10,6 +10,7 @@ import {
   formatAED,
   kioskCardBgClass,
   kioskCardStyle,
+  kioskCardTextClass,
   kioskThemeStyle,
   kioskTitleClass,
   useClock,
@@ -21,9 +22,14 @@ import {
   type PanelTone,
 } from "./shared"
 
-const COUNTER_SM = {
-  tileClassName: "h-9 w-7",
-  textClassName: "text-xl font-semibold leading-7 tracking-tight text-foreground-strong",
+/** Digit-tile sizing for `Panel`'s sub-metric `FlipCounter`s — the tile grows
+ *  a step alongside its text under `largeCardText`, so the (larger) digit
+ *  doesn't clip against a tile sized for the smaller default. */
+function counterSm(largeCardText: boolean) {
+  return {
+    tileClassName: largeCardText ? "h-11 w-8" : "h-9 w-7",
+    textClassName: cn("font-semibold leading-7 tracking-tight text-foreground-strong", kioskCardTextClass("xl", largeCardText)),
+  }
 }
 
 /**
@@ -36,7 +42,7 @@ const COUNTER_SM = {
  * single-row 6048×840 banner variant, see `wide/live-pulse-display-wide.tsx`.
  */
 export function LivePulseDisplay() {
-  const { mode, setMode, theme, setTheme } = useKioskTheme()
+  const { mode, setMode, theme, setTheme, largeCardText, setLargeCardText } = useKioskTheme()
   const { time, sessionStart } = useClock()
   const market = useLiveMarket()
   const avgTransactionValue =
@@ -48,38 +54,62 @@ export function LivePulseDisplay() {
       style={kioskThemeStyle(theme, mode)}
     >
       <div className="relative z-10 flex min-h-full flex-col px-2xl py-xl">
-        <Header time={time} mode={mode} onModeChange={setMode} theme={theme} onThemeChange={setTheme} />
+        <Header
+          time={time}
+          mode={mode}
+          onModeChange={setMode}
+          theme={theme}
+          onThemeChange={setTheme}
+          largeCardText={largeCardText}
+          onLargeCardTextChange={setLargeCardText}
+        />
         <div className="mt-xl grid min-h-0 flex-1 grid-cols-4 gap-sm">
           <StatCard
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             label="Total transactions · today"
             value={<CountValue value={market.transactionsToday} />}
-            footer={<p className="text-xs font-normal leading-tight text-muted-foreground">Session started {sessionStart}</p>}
+            footer={
+              <p className={cn("font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+                Session started {sessionStart}
+              </p>
+            }
           />
 
           <StatCard
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             label="Total market value · today"
-            value={<CurrencyValue value={market.totalMarketValue} />}
+            value={<CurrencyValue value={market.totalMarketValue} largeCardText={largeCardText} />}
             footer={<Sparkline className={cn("h-9 w-full", kioskTitleClass(theme))} />}
           />
 
           <StatCard
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             label="Avg. transaction value"
-            value={<CurrencyValue value={avgTransactionValue} />}
-            footer={<p className="text-xs font-normal leading-tight text-muted-foreground">across all live groups</p>}
+            value={<CurrencyValue value={avgTransactionValue} largeCardText={largeCardText} />}
+            footer={
+              <p className={cn("font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+                across all live groups
+              </p>
+            }
           />
 
           <StatCard
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             label="Top transaction · today"
-            value={<CurrencyValue value={market.topTransactionValue} />}
-            footer={<p className="text-xs font-normal leading-tight text-muted-foreground">Sell · Off-plan · Masdar City</p>}
+            value={<CurrencyValue value={market.topTransactionValue} largeCardText={largeCardText} />}
+            footer={
+              <p className={cn("font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+                Sell · Off-plan · Masdar City
+              </p>
+            }
           />
         </div>
 
@@ -87,6 +117,7 @@ export function LivePulseDisplay() {
           <Panel
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             tone="primary"
             title="Sell Transactions"
             subtitle="Off-plan & ready unit sales"
@@ -103,6 +134,7 @@ export function LivePulseDisplay() {
           <Panel
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             tone="secondary"
             title="Development Interest"
             subtitle="Expression of Interest (EOI) service"
@@ -115,6 +147,7 @@ export function LivePulseDisplay() {
           <Panel
             theme={theme}
             mode={mode}
+            largeCardText={largeCardText}
             tone="primary"
             title="Lease Transactions"
             subtitle="New contracts & renewals"
@@ -141,12 +174,16 @@ function Header({
   onModeChange,
   theme,
   onThemeChange,
+  largeCardText,
+  onLargeCardTextChange,
 }: {
   time: string
   mode: KioskThemeMode
   onModeChange: (mode: KioskThemeMode) => void
   theme: KioskColorTheme
   onThemeChange: (theme: KioskColorTheme) => void
+  largeCardText: boolean
+  onLargeCardTextChange: (largeCardText: boolean) => void
 }) {
   return (
     <header className="flex items-center justify-between gap-xl">
@@ -178,7 +215,14 @@ function Header({
           <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase">Live</span>
         </Badge>
         <span className="text-xl font-semibold leading-7 tracking-tight text-foreground-strong tabular-nums">{time}</span>
-        <SettingsMenu mode={mode} onModeChange={onModeChange} theme={theme} onThemeChange={onThemeChange} />
+        <SettingsMenu
+          mode={mode}
+          onModeChange={onModeChange}
+          theme={theme}
+          onThemeChange={onThemeChange}
+          largeCardText={largeCardText}
+          onLargeCardTextChange={onLargeCardTextChange}
+        />
       </div>
     </header>
   )
@@ -189,12 +233,14 @@ function Header({
 function StatCard({
   theme,
   mode,
+  largeCardText,
   label,
   value,
   footer,
 }: {
   theme: KioskColorTheme
   mode: KioskThemeMode
+  largeCardText: boolean
   label: string
   value: React.ReactNode
   footer?: React.ReactNode
@@ -206,7 +252,13 @@ function StatCard({
       className={cn("flex flex-col gap-sm", kioskCardBgClass(theme))}
       style={kioskCardStyle(theme, mode)}
     >
-      <span className={cn("text-[0.625rem] font-semibold leading-none tracking-widest uppercase", kioskTitleClass(theme))}>
+      <span
+        className={cn(
+          "font-semibold leading-none tracking-widest uppercase",
+          kioskCardTextClass("3xs", largeCardText),
+          kioskTitleClass(theme)
+        )}
+      >
         {label}
       </span>
       <div className="flex flex-1 flex-col justify-center">{value}</div>
@@ -221,8 +273,10 @@ function StatCard({
 
 /** A currency figure with the "AED" unit set small, top-aligned to the right of
  *  the value. Counts up to `value` whenever it changes and briefly flashes
- *  primary-coloured to call out the update, like a live trading ticker. */
-function CurrencyValue({ value }: { value: number }) {
+ *  primary-coloured to call out the update, like a live trading ticker. The
+ *  figure itself is the "main value" — fixed at `text-[4rem]` regardless of
+ *  `largeCardText`; only the small "AED" unit responds to it. */
+function CurrencyValue({ value, largeCardText }: { value: number; largeCardText: boolean }) {
   const { display, pulsing } = usePulsingCountUp(value)
 
   return (
@@ -235,7 +289,9 @@ function CurrencyValue({ value }: { value: number }) {
       >
         {formatAED(display)}
       </span>
-      <span className="text-xs font-normal leading-tight text-muted-foreground pt-2xs pl-2xs">AED</span>
+      <span className={cn("font-normal leading-tight text-muted-foreground pt-2xs pl-2xs", kioskCardTextClass("xs", largeCardText))}>
+        AED
+      </span>
     </span>
   )
 }
@@ -268,6 +324,7 @@ interface SubMetric {
 interface PanelProps {
   theme: KioskColorTheme
   mode: KioskThemeMode
+  largeCardText: boolean
   tone: PanelTone
   title: string
   subtitle: string
@@ -279,7 +336,20 @@ interface PanelProps {
   totalValue: number
 }
 
-function Panel({ theme, mode, tone, title, subtitle, chipValue, count, countLabel, subMetrics, totalLabel, totalValue }: PanelProps) {
+function Panel({
+  theme,
+  mode,
+  largeCardText,
+  tone,
+  title,
+  subtitle,
+  chipValue,
+  count,
+  countLabel,
+  subMetrics,
+  totalLabel,
+  totalValue,
+}: PanelProps) {
   return (
     <Card
       variant="default"
@@ -289,8 +359,18 @@ function Panel({ theme, mode, tone, title, subtitle, chipValue, count, countLabe
     >
       <div className="flex items-start justify-between gap-md">
         <div>
-          <h3 className={cn("text-lg font-semibold leading-6 tracking-tight", kioskTitleClass(theme))}>{title}</h3>
-          <p className="mt-2xs text-xs font-normal leading-tight text-muted-foreground">{subtitle}</p>
+          <h3
+            className={cn(
+              "font-semibold leading-6 tracking-tight",
+              kioskCardTextClass("lg", largeCardText),
+              kioskTitleClass(theme)
+            )}
+          >
+            {title}
+          </h3>
+          <p className={cn("mt-2xs font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+            {subtitle}
+          </p>
         </div>
         {chipValue !== undefined && (
           <Badge
@@ -305,15 +385,19 @@ function Panel({ theme, mode, tone, title, subtitle, chipValue, count, countLabe
       <div className="flex flex-1 flex-col justify-center gap-lg">
         <div className="flex items-baseline gap-sm">
           <CountValue value={count} />
-          <span className="text-xs font-normal leading-tight text-muted-foreground">{countLabel}</span>
+          <span className={cn("font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+            {countLabel}
+          </span>
         </div>
 
         <div className={cn("grid gap-sm", subMetrics.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
           {subMetrics.map((m) => (
             <div key={m.label} className="rounded-sm bg-muted/25 p-sm">
-              <p className="text-xs font-normal leading-tight text-muted-foreground">{m.label}</p>
+              <p className={cn("font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+                {m.label}
+              </p>
               <div className="mt-xs">
-                <FlipCounter value={m.value} digits={3} {...COUNTER_SM} />
+                <FlipCounter value={m.value} digits={3} {...counterSm(largeCardText)} />
               </div>
             </div>
           ))}
@@ -321,8 +405,15 @@ function Panel({ theme, mode, tone, title, subtitle, chipValue, count, countLabe
       </div>
 
       <div className="flex items-center justify-between border-t border-dashed border-border pt-md">
-        <span className="text-xs font-normal leading-tight text-muted-foreground">{totalLabel}</span>
-        <span className="text-xl font-semibold leading-7 tracking-tight text-foreground-strong tabular-nums">
+        <span className={cn("font-normal leading-tight text-muted-foreground", kioskCardTextClass("xs", largeCardText))}>
+          {totalLabel}
+        </span>
+        <span
+          className={cn(
+            "font-semibold leading-7 tracking-tight text-foreground-strong tabular-nums",
+            kioskCardTextClass("xl", largeCardText)
+          )}
+        >
           <span className="text-muted-foreground/50">AED</span> <AedAmount value={totalValue} />
         </span>
       </div>
