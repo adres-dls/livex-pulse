@@ -94,7 +94,7 @@ export function LivePulseDisplayWide() {
               largeCardText={largeCardText}
               label="Total market value · today"
               value={<CurrencyValue value={market.totalMarketValue} largeCardText={largeCardText} />}
-              footer={<Sparkline className={cn("h-16 w-full", kioskTitleClass(theme))} />}
+              footer={<Sparkline className={cn("h-10 w-full", kioskTitleClass(theme))} />}
             />
 
             <StatCard
@@ -322,7 +322,7 @@ function ValueBlock({
   children: React.ReactNode
 }) {
   return (
-    <span className="inline-flex flex-col items-start gap-md">
+    <span className="inline-flex flex-col items-start">
       {label && (
         <span className={cn("font-display font-semibold leading-12 tracking-tight text-foreground", kioskCardTextClass("4xl", largeCardText))}>
           {label}
@@ -435,9 +435,9 @@ function Panel({
             <CountValue value={count} label={countLabel} largeCardText={largeCardText} />
           </div>
 
-          <div className="grid grid-cols-1 gap-md">
+          <div className="grid grid-cols-1 gap-xs pb-sm">
             {subMetrics.map((m) => (
-              <div key={m.label} className="pb-xl flex items-baseline gap-md justify-end">
+              <div key={m.label} className="flex items-baseline-last gap-md justify-end">
                 <p
                   className={cn(
                     "whitespace-pre-line text-right font-semibold leading-7 tracking-tight text-muted-foreground",
