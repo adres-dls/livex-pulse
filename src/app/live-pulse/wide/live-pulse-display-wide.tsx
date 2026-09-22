@@ -153,10 +153,10 @@ function Header({
         />
         <div className="flex flex-col gap-xs border-s border-border ps-xl">
           <div className="flex items-baseline gap-md">
-            <h1 className="text-2xl font-semibold leading-7 tracking-tight text-foreground-strong">
+            <h1 className="text-2xl font-semibold leading-7 tracking-tight uppercase text-foreground-strong">
               Live <span className="text-primary">Pulse</span>.
             </h1>
-            <span className="text-2xl leading-7 tracking-tight font-normal text-foreground">Market Transaction Feed</span>
+            <span className="text-2xl leading-7 tracking-tight font-normal uppercase text-foreground">Market Transaction Feed</span>
           </div>
           <div className="flex items-center gap-md">
             <span className="text-2xl font-semibold leading-7 tracking-tight tabular-nums text-foreground">{time}</span>
@@ -275,13 +275,13 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
         <div className="flex h-40 items-start justify-between gap-md">
           <div>
             <h3 className="font-display text-4xl font-semibold leading-12 tracking-tight text-primary">{title}</h3>
-            <p className="mt-2xs text-xl leading-7 text-muted-foreground">{subtitle}</p>
+            <p className="mt-2xs text-2xl leading-7 text-muted-foreground">{subtitle}</p>
           </div>
           {chipValue !== undefined && (
             <Badge
               variant={BADGE_VARIANT[tone]}
               size="lg"
-              className="bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted text-xl! font-semibold! leading-7! tracking-tight!"
+              className="hidden bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted text-4xl! font-semibold! leading-12! tracking-tight!"
             >
               AED <AedAmount value={chipValue} />
             </Badge>
