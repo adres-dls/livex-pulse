@@ -351,7 +351,7 @@ export function SettingsMenu({
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" size="sm">
-        <span className="t-overline text-muted-foreground">Display</span>
+        <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-muted-foreground">Display</span>
         <Toggle
           labelClassName="mt-md w-full justify-between"
           label="Dark theme"

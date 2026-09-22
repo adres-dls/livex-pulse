@@ -16,7 +16,10 @@ import {
   type PanelTone,
 } from "./shared"
 
-const COUNTER_SM = { tileClassName: "h-9 w-7", textClassName: "t-h2" }
+const COUNTER_SM = {
+  tileClassName: "h-9 w-7",
+  textClassName: "text-xl font-semibold leading-7 tracking-tight text-foreground-strong",
+}
 
 /**
  * "Live Pulse" — a fixed, full-bleed kiosk board for the LIVEX exhibition
@@ -42,7 +45,7 @@ export function LivePulseDisplay() {
           <StatCard
             label="Total transactions · today"
             value={<CountValue value={market.transactionsToday} />}
-            footer={<p className="t-caption text-muted-foreground">Session started {sessionStart}</p>}
+            footer={<p className="text-xs font-normal leading-tight text-muted-foreground">Session started {sessionStart}</p>}
           />
 
           <StatCard
@@ -54,13 +57,13 @@ export function LivePulseDisplay() {
           <StatCard
             label="Avg. transaction value"
             value={<CurrencyValue value={avgTransactionValue} />}
-            footer={<p className="t-caption text-muted-foreground">across all live groups</p>}
+            footer={<p className="text-xs font-normal leading-tight text-muted-foreground">across all live groups</p>}
           />
 
           <StatCard
             label="Top transaction · today"
             value={<CurrencyValue value={market.topTransactionValue} />}
-            footer={<p className="t-caption text-muted-foreground">Sell · Off-plan · Masdar City</p>}
+            footer={<p className="text-xs font-normal leading-tight text-muted-foreground">Sell · Off-plan · Masdar City</p>}
           />
         </div>
 
@@ -129,22 +132,22 @@ function Header({
           className="h-12 w-auto"
         />
         <div className="border-s border-border ps-md">
-          <h1 className="t-h2">
+          <h1 className="text-xl leading-7 tracking-tight font-semibold text-foreground-strong">
             Live <span className="text-primary">Pulse</span>
           </h1>
-          <p className="t-h2 font-normal! text-foreground">
+          <p className="text-xl leading-7 tracking-tight font-normal text-foreground">
             Market Transaction Feed
           </p>
         </div>
       </div>
 
       <div className="flex items-center gap-lg">
-        {/* <span className="t-label-md text-muted-foreground">LIVEX 2026 — Abu Dhabi Exhibition</span> */}
+        {/* <span className="text-base font-medium leading-none text-muted-foreground">LIVEX 2026 — Abu Dhabi Exhibition</span> */}
         <Badge variant="success" size="sm">
           <span aria-hidden className="size-1.5 rounded-full bg-success-foreground" />
-          <span className="t-overline">Live</span>
+          <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase">Live</span>
         </Badge>
-        <span className="t-h2 tabular-nums">{time}</span>
+        <span className="text-xl font-semibold leading-7 tracking-tight text-foreground-strong tabular-nums">{time}</span>
         <SettingsMenu mode={mode} onModeChange={onModeChange} />
       </div>
     </header>
@@ -164,7 +167,7 @@ function StatCard({
 }) {
   return (
     <Card variant="default" padding="3xl" className="flex flex-col gap-sm bg-card/60 backdrop-blur-xl">
-      <span className="t-overline text-primary">{label}</span>
+      <span className="text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-primary">{label}</span>
       <div className="flex flex-1 flex-col justify-center">{value}</div>
       {/* Fixed height (matches the sparkline) so every card reserves the same
           footer space — otherwise a taller footer (the chart) shrinks its
@@ -183,10 +186,15 @@ function CurrencyValue({ value }: { value: number }) {
 
   return (
     <span className="inline-flex items-start gap-2xs">
-      <span className={cn("t-display-xl tabular-nums transition-colors duration-500", pulsing && "text-primary")}>
+      <span
+        className={cn(
+          "font-display text-[4rem] font-semibold leading-16 tracking-tighter text-foreground-strong tabular-nums transition-colors duration-500",
+          pulsing && "text-primary"
+        )}
+      >
         {formatAED(display)}
       </span>
-      <span className="t-caption text-muted-foreground pt-2xs pl-2xs">AED</span>
+      <span className="text-xs font-normal leading-tight text-muted-foreground pt-2xs pl-2xs">AED</span>
     </span>
   )
 }
@@ -198,7 +206,12 @@ function CountValue({ value }: { value: number }) {
   const { display, pulsing } = usePulsingCountUp(value)
 
   return (
-    <span className={cn("t-display-xl tabular-nums transition-colors duration-500", pulsing && "text-primary")}>
+    <span
+      className={cn(
+        "font-display text-[4rem] font-semibold leading-16 tracking-tighter text-foreground-strong tabular-nums transition-colors duration-500",
+        pulsing && "text-primary"
+      )}
+    >
       {display}
     </span>
   )
@@ -228,8 +241,8 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
     <Card variant="default" padding="3xl" className="flex flex-col gap-lg bg-card/60 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-md">
         <div>
-          <h3 className="t-h3 text-primary">{title}</h3>
-          <p className="mt-2xs t-caption text-muted-foreground">{subtitle}</p>
+          <h3 className="text-lg font-semibold leading-6 tracking-tight text-primary">{title}</h3>
+          <p className="mt-2xs text-xs font-normal leading-tight text-muted-foreground">{subtitle}</p>
         </div>
         {chipValue !== undefined && (
           <Badge
@@ -244,13 +257,13 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
       <div className="flex flex-1 flex-col justify-center gap-lg">
         <div className="flex items-baseline gap-sm">
           <CountValue value={count} />
-          <span className="t-caption text-muted-foreground">{countLabel}</span>
+          <span className="text-xs font-normal leading-tight text-muted-foreground">{countLabel}</span>
         </div>
 
         <div className={cn("grid gap-sm", subMetrics.length > 1 ? "grid-cols-2" : "grid-cols-1")}>
           {subMetrics.map((m) => (
             <div key={m.label} className="rounded-sm bg-muted/25 p-sm">
-              <p className="t-caption text-muted-foreground">{m.label}</p>
+              <p className="text-xs font-normal leading-tight text-muted-foreground">{m.label}</p>
               <div className="mt-xs">
                 <FlipCounter value={m.value} digits={3} {...COUNTER_SM} />
               </div>
@@ -260,8 +273,8 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
       </div>
 
       <div className="flex items-center justify-between border-t border-dashed border-border pt-md">
-        <span className="t-caption text-muted-foreground">{totalLabel}</span>
-        <span className="t-h2 tabular-nums">
+        <span className="text-xs font-normal leading-tight text-muted-foreground">{totalLabel}</span>
+        <span className="text-xl font-semibold leading-7 tracking-tight text-foreground-strong tabular-nums">
           <span className="text-muted-foreground/50">AED</span> <AedAmount value={totalValue} />
         </span>
       </div>

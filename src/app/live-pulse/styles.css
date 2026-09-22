@@ -7,6 +7,15 @@
  * shadows. The goal is pixel-identical output with zero runtime dependency
  * on the DS: this file is the ONLY stylesheet the live-pulse route needs.
  *
+ * NOT yet wired in — the app still imports the real `@adres/design-system`
+ * / `@adres/brand-adrec` packages via `src/app/globals.css`. The components
+ * no longer reference any custom `t-*` typography alias (they use plain
+ * Tailwind utilities directly), so switching the import here to this file
+ * instead of `globals.css` is the only remaining step for full runtime
+ * independence from the DS — not done yet since it hasn't been verified
+ * that every DS component this feature still imports (Badge, Card, Popover,
+ * Toggle) renders identically against only the tokens copied below.
+ *
  * Deliberately NOT copied (unused by this feature, so omitted rather than
  * carried as dead weight):
  *   - tertiary / destructive / warning / accent / chart-* color families
@@ -339,66 +348,11 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Typography — the exact `t-*` classes this feature uses, copied verbatim
- * from the DS's typography.css (`@apply` targets are all either native
- * Tailwind utilities or resolve against the theme tokens defined above).
+ * Typography — no custom `t-*` aliases. The components spell out plain
+ * Tailwind utilities directly (text-2xl font-semibold leading-7 …), using
+ * the type scale registered above, so this file needs no typography layer
+ * of its own to stay pixel-identical to the DS's typography.css.
  * ───────────────────────────────────────────────────────────────────────── */
-@utility t-display-2xl {
-  @apply font-display text-7xl font-semibold leading-18 tracking-tighter text-foreground-strong;
-}
-
-@utility t-display-xl {
-  @apply font-display text-[4rem] font-semibold leading-16 tracking-tighter text-foreground-strong;
-}
-
-@utility t-display-sm {
-  @apply font-display text-3xl font-semibold leading-10 tracking-tight text-foreground-strong;
-}
-
-@utility t-h1 {
-  @apply text-2xl font-semibold leading-7 tracking-tight text-foreground-strong;
-}
-
-@utility t-h2 {
-  @apply text-xl font-semibold leading-7 tracking-tight text-foreground-strong;
-}
-
-@utility t-h3 {
-  @apply text-lg font-semibold leading-6 tracking-tight text-foreground-strong;
-}
-
-@utility t-body-lg {
-  @apply text-lg leading-6.5;
-}
-
-@utility t-body-md {
-  @apply text-base leading-snug;
-}
-
-@utility t-body-sm {
-  @apply text-sm leading-snug;
-}
-
-@utility t-caption {
-  @apply text-xs font-normal leading-tight;
-}
-
-@utility t-label-lg {
-  @apply text-lg font-medium leading-none;
-}
-
-@utility t-label-md {
-  @apply text-base font-medium leading-none;
-}
-
-@utility t-label-sm {
-  @apply text-sm font-medium leading-none;
-}
-
-@utility t-overline {
-  font-size: var(--text-3xs);
-  @apply font-semibold leading-none tracking-widest uppercase;
-}
 
 /* ─────────────────────────────────────────────────────────────────────────
  * Motion — `.transition-snappy` (Toggle track/thumb hover/press feedback).

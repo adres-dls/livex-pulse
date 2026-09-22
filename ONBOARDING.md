@@ -7,10 +7,11 @@
 Livex Pulse is the "Live Pulse" kiosk board for the LIVEX exhibition stand — a full-bleed,
 English-only display of live Abu Dhabi real-estate market activity (transactions, market
 value, category breakdowns) meant for a venue monitor or LED wall, not a signed-in app.
-It's served directly at `/` (the app's default and only screen — see `src/app/page.tsx`),
-with `src/app/live-pulse/page.tsx` kept as an explicit `/live-pulse` alias for venue
-displays already pointed at that URL. `src/app/live-pulse/wide/` is the single-row
-6048×840 banner variant for a video-wall strip.
+The single-row 6048×840 banner variant (`src/app/live-pulse/wide/`), for a video-wall
+strip, is served directly at `/` (the app's default screen — see `src/app/page.tsx`).
+`src/app/live-pulse/page.tsx` (standard 16:9 board, `/live-pulse`) and
+`src/app/live-pulse/wide/page.tsx` (`/live-pulse/wide`) are kept as explicit aliases for
+venue displays already pointed at either URL.
 
 This repo was originally bootstrapped from the Dari codebase (same design-system/brand
 wiring and app scaffolding). That scaffolding's own pages, components, i18n and theme

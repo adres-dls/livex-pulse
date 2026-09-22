@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 }
 
 /**
- * Standalone kiosk screen for conference monitors. Also served at `/` (see
- * `../page.tsx`) — this route is kept as an explicit alias for venue displays
- * already pointed at `/live-pulse`.
+ * Standalone kiosk screen for conference monitors — the standard 16:9 board.
+ * `/` now serves the wide banner variant by default (see `../page.tsx`), so
+ * this route is the explicit way to reach this board.
  */
 export default function LivePulsePage() {
   return <LivePulseDisplay />

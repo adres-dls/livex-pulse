@@ -62,7 +62,7 @@ export function LivePulseDisplayWide() {
             <StatCard
               label="Total transactions · today"
               value={<CountValue value={market.transactionsToday} />}
-              footer={<p className="t-h1 text-muted-foreground">Session started {sessionStart}</p>}
+              footer={<p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">Session started {sessionStart}</p>}
             />
 
             <StatCard
@@ -74,13 +74,13 @@ export function LivePulseDisplayWide() {
             <StatCard
               label="Avg. transaction value"
               value={<CurrencyValue value={avgTransactionValue} />}
-              footer={<p className="t-h1 text-muted-foreground">Across all live groups</p>}
+              footer={<p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">Across all live groups</p>}
             />
 
             <StatCard
               label="Top transaction · today"
               value={<CurrencyValue value={market.topTransactionValue} />}
-              footer={<p className="t-h1 text-muted-foreground">Sell · Off-plan · Masdar City</p>}
+              footer={<p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">Sell · Off-plan · Masdar City</p>}
             />
 
             <Panel
@@ -153,16 +153,16 @@ function Header({
         />
         <div className="flex flex-col gap-xs border-s border-border ps-xl">
           <div className="flex items-baseline gap-md">
-            <h1 className="t-h1">
+            <h1 className="text-2xl font-semibold leading-7 tracking-tight text-foreground-strong">
               Live <span className="text-primary">Pulse</span>.
             </h1>
-            <span className="t-h1 font-normal text-foreground">Market Transaction Feed</span>
+            <span className="text-2xl leading-7 tracking-tight font-normal text-foreground">Market Transaction Feed</span>
           </div>
           <div className="flex items-center gap-md">
-            <span className="t-h1 tabular-nums text-foreground">{time}</span>
+            <span className="text-2xl font-semibold leading-7 tracking-tight tabular-nums text-foreground">{time}</span>
             <Badge variant="success" size="sm">
               <span aria-hidden className="size-1.5 rounded-full bg-success-foreground" />
-              <span className="t-label-sm uppercase tracking-widest">Live</span>
+              <span className="text-sm font-medium leading-none uppercase tracking-widest">Live</span>
             </Badge>
           </div>
         </div>
@@ -194,7 +194,7 @@ function StatCard({
             space keeps the value below starting at the same height on
             every card in the row. */}
         <div className="flex h-40 items-start">
-          <span className="t-display-md text-primary">{label}</span>
+          <span className="font-display text-4xl font-semibold leading-12 tracking-tight text-primary">{label}</span>
         </div>
         {/* Fixed height, bottom-anchored — a labeled value (e.g. "AED" above
             the figure) overflows above this box rather than pushing the
@@ -215,7 +215,7 @@ function StatCard({
  *  one typography treatment regardless of what (if anything) labels it. */
 function BigValue({ children }: { children: React.ReactNode }) {
   return (
-    <span className="t-display-2xl text-[14rem]! leading-56! tracking-[0.01em]! tabular-nums">
+    <span className="font-display font-semibold text-foreground-strong text-[14rem] leading-56 tracking-[0.01em] tabular-nums">
       {children}
     </span>
   )
@@ -228,7 +228,7 @@ function BigValue({ children }: { children: React.ReactNode }) {
 function ValueBlock({ label, children }: { label?: string; children: React.ReactNode }) {
   return (
     <span className="inline-flex flex-col items-start">
-      {label && <span className="t-display-md text-foreground">{label}</span>}
+      {label && <span className="font-display text-4xl font-semibold leading-12 tracking-tight text-foreground">{label}</span>}
       <BigValue>{children}</BigValue>
     </span>
   )
@@ -274,14 +274,14 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
             further down than the single-line stat cards' values. */}
         <div className="flex h-40 items-start justify-between gap-md">
           <div>
-            <h3 className="t-display-md text-primary">{title}</h3>
-            <p className="mt-2xs t-body-xl text-muted-foreground">{subtitle}</p>
+            <h3 className="font-display text-4xl font-semibold leading-12 tracking-tight text-primary">{title}</h3>
+            <p className="mt-2xs text-xl leading-7 text-muted-foreground">{subtitle}</p>
           </div>
           {chipValue !== undefined && (
             <Badge
               variant={BADGE_VARIANT[tone]}
               size="lg"
-              className="bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted t-h2!"
+              className="bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted text-xl! font-semibold! leading-7! tracking-tight!"
             >
               AED <AedAmount value={chipValue} />
             </Badge>
@@ -300,8 +300,8 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
             <div className="grid grid-cols-1 gap-md">
               {subMetrics.map((m) => (
                 <div key={m.label} className="pb-xl flex items-baseline gap-md justify-end">
-                  <p className="t-h1 text-muted-foreground">{m.label}</p>
-                  <span className="t-display-md text-foreground tabular-nums">{m.value}</span>
+                  <p className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">{m.label}</p>
+                  <span className="font-display text-4xl font-semibold leading-12 tracking-tight text-foreground tabular-nums">{m.value}</span>
                 </div>
               ))}
             </div>
@@ -313,8 +313,8 @@ function Panel({ tone, title, subtitle, chipValue, count, countLabel, subMetrics
           mirrors `StatCard`, so the value above sits at a fixed gap below the
           header instead of centering in whatever space is left. */}
       <div className="mt-auto flex items-baseline justify-between border-t border-dashed border-border-strong pt-md">
-        <span className="t-h1 text-muted-foreground">{totalLabel}</span>
-        <span className="t-display-md tabular-nums">
+        <span className="text-2xl font-semibold leading-7 tracking-tight text-muted-foreground">{totalLabel}</span>
+        <span className="font-display text-4xl font-semibold leading-12 tracking-tight text-foreground-strong tabular-nums">
           <span className="text-muted-foreground/50">AED</span> <AedAmount value={totalValue} />
         </span>
       </div>
