@@ -9,6 +9,7 @@ import {
   formatAED,
   kioskCardBgClass,
   kioskCardStyle,
+  kioskPanelBorderStyle,
   kioskCardTextClass,
   kioskThemeStyle,
   kioskTitleClass,
@@ -394,7 +395,7 @@ function Panel({
       variant="default"
       padding="4xl"
       className={cn("flex flex-col justify-between", kioskCardBgClass(theme))}
-      style={kioskCardStyle(theme, mode)}
+      style={{ ...kioskCardStyle(theme, mode), ...kioskPanelBorderStyle(theme) }}
     >
       {/* Fixed height matching `StatCard`'s header — guards against a long
           subtitle wrapping to a second line and pushing the value below
@@ -459,7 +460,7 @@ function Panel({
           </div>
         </div>
 
-        <div className="flex items-baseline justify-between pt-lg border-t-2 border-border">
+        <div className={cn("flex items-baseline justify-between pt-lg border-t-2", theme === "theme1" ? "border-black" : "border-border")}>
           <span className={cn("font-semibold leading-7 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
             {totalLabel}
           </span>

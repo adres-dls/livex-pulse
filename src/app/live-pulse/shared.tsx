@@ -140,6 +140,16 @@ export function kioskCardBgClass(theme: KioskColorTheme): string {
   return theme === "theme1" ? "bg-card" : "bg-card/60 backdrop-blur-xl"
 }
 
+/** Black `Card` border for the category panels under `theme1` — the DS's own
+ *  `--card-border-color` (consumed by `Card`'s default variant) is
+ *  `transparent` by default, so panels otherwise show no edge against the
+ *  primary-tinted page. Only the panels opt in (not the top stat cards):
+ *  merge into a `Card`'s `style` alongside `kioskCardStyle`, never in
+ *  place of it. */
+export function kioskPanelBorderStyle(theme: KioskColorTheme): CSSProperties | undefined {
+  return theme === "theme1" ? ({ "--card-border-color": "black" } as CSSProperties) : undefined
+}
+
 /* ─── Card text scale ─────────────────────────────────────────────────────── */
 
 export type KioskCardTextStep = "3xs" | "xs" | "lg" | "xl" | "2xl" | "4xl"
