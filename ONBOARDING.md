@@ -86,7 +86,8 @@ problem, the fallback is switching back to published npm versions (as `main` cur
 - Use DS scale tokens for the rest: spacing (`gap-md`, `px-xl`, `py-2xs`…), radius
   (`rounded-(--input-radius)`, `radius-*`), typography (`t-display-*`, `t-h1`…`t-h6`,
   `t-body-*`, `t-label-*`, `t-overline`).
-- Typeface: **Helvetica Neue** (system stack) — no web font.
+- Typeface: **Capitana**, self-hosted from `public/fonts/` (regular + bold only, no italic) —
+  see the `--font-family-sans`/`--font-family-display` override in `globals.css`.
 - Dark mode = a `.dark` class on `<html>` (not OS preference).
 
 ## Swiss design language

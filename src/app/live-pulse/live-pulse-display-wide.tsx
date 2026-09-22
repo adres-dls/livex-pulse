@@ -290,8 +290,8 @@ function StatCard({
             the figure) overflows above this box rather than pushing the
             figure itself down, so the figure's own baseline lands at the
             same height whether or not it has a label above it. */}
-        <div className="flex h-64 items-end">{value}</div>
-        <div className="flex h-16 items-end">{footer}</div>
+        <div className="flex items-end">{value}</div>
+        <div className="flex items-end pt-3xl">{footer}</div>
       </div>
     </Card>
   )
@@ -426,7 +426,7 @@ function Panel({
       {/* Value/submetrics row and total-value footer sit together at the
           card's bottom edge — `justify-between` on the card pushes this
           group away from the title above, mirroring `StatCard`. */}
-      <div className="flex flex-col gap-lg">
+      <div className="flex flex-col gap-xl">
         <div className="flex items-end justify-between gap-lg">
           {/* Same fixed-height, bottom-anchored treatment as `StatCard` —
               keeps the count's own baseline aligned with the stat cards'
@@ -454,7 +454,7 @@ function Panel({
           </div>
         </div>
 
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline justify-between pt-md border-t-2 border-border">
           <span className={cn("font-semibold leading-7 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
             {totalLabel}
           </span>
@@ -464,7 +464,7 @@ function Panel({
               kioskCardTextClass("4xl", largeCardText)
             )}
           >
-            <span className="text-muted-foreground/50">AED</span> <AedAmount value={totalValue} />
+            <span className={cn("font-semibold leading-7 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>AED</span> <AedAmount value={totalValue} />
           </span>
         </div>
       </div>

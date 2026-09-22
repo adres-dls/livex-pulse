@@ -12,7 +12,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   // `data-brand="adrec"` activates the Adrec token set (gold / sage / burgundy).
-  // Adrec's typeface is Helvetica Neue (system) so there's no web font to load.
+  // Typeface is Capitana, self-hosted from `public/fonts/` — see the
+  // `--font-family-sans`/`--font-family-display` override in `globals.css`.
   // Dark mode is a `.dark` class on <html>, toggled per-board by `useKioskTheme`.
   return (
     <html lang="en" dir="ltr" data-brand="adrec" suppressHydrationWarning>

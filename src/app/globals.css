@@ -15,7 +15,8 @@
  *                          t-label-*, t-overline, …) come from here — the app
  *                          does not define or override any of its own.
  *
- * Adrec's typeface is Helvetica Neue (system font) — no web font to load.
+ * Adrec's typeface is Capitana (see the `--font-family-sans`/`--font-family-display`
+ * override below), self-hosted from `public/fonts/` — regular + bold only, no italic.
  */
 
 @import "tailwindcss";
@@ -31,6 +32,34 @@
 @import "@adres/design-system/styles";
 
 /*
+ * Livex Pulse-only typeface override.
+ *
+ * The shared @adres/brand-adrec package sets `--font-family-sans` (and
+ * `--font-family-display`, which just aliases it) to the system Helvetica
+ * Neue stack — used by every app on the Adrec brand theme. This app instead
+ * uses Capitana, self-hosted from `public/fonts/` (regular 400 + bold 700
+ * only — weights in between, e.g. the DS's `font-semibold` figures, fall
+ * back to the nearest declared face per the CSS font-matching algorithm, so
+ * no synthetic bolding). Declared here rather than upstream, scoped to this
+ * app only — other Adrec apps keep Helvetica Neue.
+ */
+@font-face {
+  font-family: "Capitana";
+  src: url("/fonts/Capitana_Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Capitana";
+  src: url("/fonts/Capitana_Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
  * Livex Pulse-only primary color override.
  *
  * The shared @adres/brand-adrec package defines Adrec's primary as gold
@@ -43,6 +72,9 @@
  * `--primary` resolves to `--primary-500` in theme.css.
  */
 :root[data-brand="adrec"] {
+  --font-family-sans: "Capitana", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-display: var(--font-family-sans);
+
   --primary-50:  26 87% 98%;
   --primary-100: 26 87% 94%;
   --primary-200: 26 87% 88%;
