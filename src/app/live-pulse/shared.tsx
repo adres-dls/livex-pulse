@@ -151,40 +151,6 @@ export function kioskPanelBorderStyle(theme: KioskColorTheme): CSSProperties | u
   return theme === "theme1" ? ({ "--card-border-color": "black" } as CSSProperties) : undefined
 }
 
-/* ─── Card text scale ─────────────────────────────────────────────────────── */
-
-export type KioskCardTextStep = "3xs" | "xs" | "lg" | "xl" | "2xl" | "4xl"
-
-/** Base size ↔ one step up Tailwind's named type scale, for every card text
- *  size in use on the board (see `kioskCardTextClass`) — `"3xs"` is
- *  this app's `text-[0.625rem]` overline size, which isn't a named Tailwind
- *  step of its own. `"2xl"` and `"4xl"` are pixel values rather than named
- *  Tailwind steps because the board's canvas is scaled to a fixed
- *  3840×534px (534/840 of its original 6048×840 size — see
- *  `live-pulse-display-wide.tsx`), and named steps don't land on that ratio.
- *  Every class name here is a literal string — including the "base" ones —
- *  so Tailwind's scanner generates all of them regardless of which branch
- *  runs at render time; a `text-${step}` template would only ever emit
- *  whichever size happened to be interpolated during a build-time scan, not
- *  a real utility class name. */
-const TEXT_STEP: Record<KioskCardTextStep, { base: string; up: string }> = {
-  "3xs": { base: "text-[0.625rem]", up: "text-xs" },
-  xs: { base: "text-xs", up: "text-sm" },
-  lg: { base: "text-lg", up: "text-xl" },
-  xl: { base: "text-xl", up: "text-2xl" },
-  "2xl": { base: "text-[15px]", up: "text-[19px]" },
-  "4xl": { base: "text-[23px]", up: "text-[38px]" },
-}
-
-/** Card copy size — `text-{step}` normally, or one step up when `enlarge`
- *  (the settings popover's "Larger card text" toggle) is on. Every text
- *  element inside a `Card` uses this instead of a literal size class, EXCEPT
- *  the main figure (`BigValue`'s `text-[14rem]`), which the settings copy
- *  calls out as staying fixed regardless. */
-export function kioskCardTextClass(step: KioskCardTextStep, enlarge: boolean): string {
-  return enlarge ? TEXT_STEP[step].up : TEXT_STEP[step].base
-}
-
 /** Drives `.dark` on `<html>` for as long as a board is mounted, independent
  *  of the signed-in app's own theme toggle — defaults to dark, flippable to
  *  light from the settings popover, and restores whatever state it found on
@@ -198,14 +164,10 @@ export function kioskCardTextClass(step: KioskCardTextStep, enlarge: boolean): s
  *  `theme1` is light-only: selecting it forces `mode` to `"light"` and the
  *  returned `setMode` then ignores further changes until `theme` switches
  *  back — the settings popover also disables its toggle in that state (see
- *  `SettingsMenu`), so this is a belt-and-braces guard, not the only one.
- *
- *  Also owns `largeCardText` (see `kioskCardTextClass`) — another plain,
- *  DOM-effect-free toggle, same reasoning as `theme`. */
+ *  `SettingsMenu`), so this is a belt-and-braces guard, not the only one. */
 export function useKioskTheme() {
   const [mode, setModeState] = useState<KioskThemeMode>("dark")
   const [theme, setTheme] = useState<KioskColorTheme>("default")
-  const [largeCardText, setLargeCardText] = useState(false)
 
   useEffect(() => {
     if (theme === "theme1") setModeState("light")
@@ -237,7 +199,7 @@ export function useKioskTheme() {
     }
   }, [mode])
 
-  return { mode, setMode, theme, setTheme, largeCardText, setLargeCardText }
+  return { mode, setMode, theme, setTheme }
 }
 
 /* ─── Market snapshot shape ───────────────────────────────────────────────── */
@@ -322,23 +284,18 @@ export function Sparkline({ className }: { className?: string }) {
 
 /* ─── Settings popover ────────────────────────────────────────────────────── */
 
-/** Gear icon + popover with the dark/light switch, the colour-theme picker,
- *  and the card text-size toggle for the kiosk's own forced theme (see
- *  `useKioskTheme`). */
+/** Gear icon + popover with the dark/light switch and the colour-theme
+ *  picker for the kiosk's own forced theme (see `useKioskTheme`). */
 export function SettingsMenu({
   mode,
   onModeChange,
   theme,
   onThemeChange,
-  largeCardText,
-  onLargeCardTextChange,
 }: {
   mode: KioskThemeMode
   onModeChange: (mode: KioskThemeMode) => void
   theme: KioskColorTheme
   onThemeChange: (theme: KioskColorTheme) => void
-  largeCardText: boolean
-  onLargeCardTextChange: (largeCardText: boolean) => void
 }) {
   return (
     <Popover>
@@ -371,16 +328,6 @@ export function SettingsMenu({
           checked={mode === "dark"}
           onCheckedChange={(checked) => onModeChange(checked ? "dark" : "light")}
           disabled={theme === "theme1"}
-        />
-
-        <span className="mt-xl block text-[0.625rem] font-semibold leading-none tracking-widest uppercase text-muted-foreground">
-          Text
-        </span>
-        <Toggle
-          labelClassName="mt-md w-full justify-between"
-          label="Larger card text"
-          checked={largeCardText}
-          onCheckedChange={onLargeCardTextChange}
         />
       </PopoverContent>
     </Popover>

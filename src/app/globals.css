@@ -60,6 +60,26 @@
 }
 
 /*
+ * Live Pulse board type scale.
+ *
+ * Centralises the wide board's four text sizes as named utilities
+ * (`text-pulse-xl`/`-lg`/`-md`/`-sm`) instead of scattering `text-[Npx]`
+ * arbitrary values across `live-pulse-display-wide.tsx` — a `--text-*` key
+ * here is a real Tailwind theme token, so `text-pulse-md` etc. are ordinary
+ * generated utilities, not ad hoc bracket values.
+ *   xl — the giant main-value figure (`BigValue`)
+ *   lg — the label under that figure (e.g. "Sales today", "AED")
+ *   md — card titles, submetric values, total-value figures
+ *   sm — captions, subtitles, submetric labels, footers
+ */
+@theme {
+  --text-pulse-xl: 7.25rem;
+  --text-pulse-lg: 2.65rem;
+  --text-pulse-md: 1.825rem;
+  --text-pulse-sm: 1.2625rem;
+}
+
+/*
  * Livex Pulse-only primary color override.
  *
  * The shared @adres/brand-adrec package defines Adrec's primary as gold

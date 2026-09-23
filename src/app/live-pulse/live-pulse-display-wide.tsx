@@ -10,7 +10,6 @@ import {
   kioskCardBgClass,
   kioskCardStyle,
   kioskPanelBorderStyle,
-  kioskCardTextClass,
   kioskThemeStyle,
   kioskTitleClass,
   useClock,
@@ -39,7 +38,7 @@ const MARKET: MarketState = {
  * extra whitespace. Shares its clock and theme logic (see `./shared`).
  */
 export function LivePulseDisplayWide() {
-  const { mode, setMode, theme, setTheme, largeCardText, setLargeCardText } = useKioskTheme()
+  const { mode, setMode, theme, setTheme } = useKioskTheme()
   const { time, sessionStart } = useClock()
   const market = MARKET
   const avgTransactionValue =
@@ -65,8 +64,6 @@ export function LivePulseDisplayWide() {
           onModeChange={setMode}
           theme={theme}
           onThemeChange={setTheme}
-          largeCardText={largeCardText}
-          onLargeCardTextChange={setLargeCardText}
         />
 
         <div className="relative h-133.5 text-foreground">
@@ -75,11 +72,11 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
-                label="Total transactions · today"
-                value={<CountValue value={market.transactionsToday} largeCardText={largeCardText} theme={theme} />}
+                label="Total transactions"
+                caption="Today"
+                value={<CountValue value={market.transactionsToday} theme={theme} />}
                 footer={
-                  <p className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
+                  <p className="text-pulse-sm text-center font-semibold leading-5 tracking-tight text-muted-foreground">
                     Session started {sessionStart}
                   </p>
                 }
@@ -88,20 +85,19 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
-                label="Total market value · today"
-                value={<CurrencyValue value={market.totalMarketValue} largeCardText={largeCardText} theme={theme} />}
+                label="Total market value"
+                caption="Today"
+                value={<CurrencyValue value={market.totalMarketValue} theme={theme} />}
                 footer={<Sparkline className={cn("h-6.25 w-full", theme === "theme1" ? "text-foreground-strong" : "text-primary")} />}
               />
 
               <StatCard
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
                 label="Avg. transaction value"
-                value={<CurrencyValue value={avgTransactionValue} largeCardText={largeCardText} theme={theme} />}
+                value={<CurrencyValue value={avgTransactionValue} theme={theme} />}
                 footer={
-                  <p className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
+                  <p className="text-pulse-sm text-center font-semibold leading-5 tracking-tight text-muted-foreground">
                     Across all live groups
                   </p>
                 }
@@ -110,11 +106,11 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
-                label="Top transaction · today"
-                value={<CurrencyValue value={market.topTransactionValue} largeCardText={largeCardText} theme={theme} />}
+                label="Top transaction"
+                caption="Today"
+                value={<CurrencyValue value={market.topTransactionValue} theme={theme} />}
                 footer={
-                  <p className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
+                  <p className="text-pulse-sm text-center font-semibold leading-5 tracking-tight text-muted-foreground">
                     Sell · Off-plan · Masdar City
                   </p>
                 }
@@ -123,7 +119,6 @@ export function LivePulseDisplayWide() {
               <Panel
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
                 tone="primary"
                 title="Sell Transactions"
                 subtitle="Off-plan & ready unit sales"
@@ -140,20 +135,18 @@ export function LivePulseDisplayWide() {
               <Panel
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
                 tone="secondary"
                 title="Development Interest"
                 subtitle="Expression of Interest (EOI) service"
                 count={market.development.count}
                 countLabel="EOIs today"
-                subMetrics={[{ label: "Registered\nprojects", value: market.development.registeredProjects }]}
+                subMetrics={[{ label: "Registered projects", value: market.development.registeredProjects }]}
                 totalLabel="Total Interest Value"
                 totalValue={0}
               />
               <Panel
                 theme={theme}
                 mode={mode}
-                largeCardText={largeCardText}
                 tone="primary"
                 title="Lease Transactions"
                 subtitle="New contracts & renewals"
@@ -182,16 +175,12 @@ function Header({
   onModeChange,
   theme,
   onThemeChange,
-  largeCardText,
-  onLargeCardTextChange,
 }: {
   time: string
   mode: KioskThemeMode
   onModeChange: (mode: KioskThemeMode) => void
   theme: KioskColorTheme
   onThemeChange: (theme: KioskColorTheme) => void
-  largeCardText: boolean
-  onLargeCardTextChange: (largeCardText: boolean) => void
 }) {
   return (
     // In normal flow (not `fixed`/`sticky`) inside the same `w-960` block as
@@ -210,7 +199,7 @@ function Header({
           className="h-9 w-auto"
         />
         <div className="flex items-center gap-2.5 border-s border-border ps-3.75">
-          <span className="text-[15px] font-semibold leading-4.5 tracking-tight tabular-nums text-foreground">{time}</span>
+          <span className="text-[15px] font-semibold leading-5 tracking-tight tabular-nums text-foreground">{time}</span>
           <Badge variant="success" size="sm">
             <span aria-hidden className="size-1.5 rounded-full bg-success-foreground" />
             <span className="text-sm font-medium leading-none uppercase tracking-widest">Live</span>
@@ -224,8 +213,6 @@ function Header({
           onModeChange={onModeChange}
           theme={theme}
           onThemeChange={onThemeChange}
-          largeCardText={largeCardText}
-          onLargeCardTextChange={onLargeCardTextChange}
         />
       </div>
     </header>
@@ -237,15 +224,15 @@ function Header({
 function StatCard({
   theme,
   mode,
-  largeCardText,
   label,
+  caption,
   value,
   footer,
 }: {
   theme: KioskColorTheme
   mode: KioskThemeMode
-  largeCardText: boolean
   label: string
+  caption?: string
   value: React.ReactNode
   footer?: React.ReactNode
 }) {
@@ -257,25 +244,33 @@ function StatCard({
       style={kioskCardStyle(theme, mode)}
     >
       {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
-          even though this header is a single line, reserving the same
-          space keeps the title's own baseline at the same height on every
-          card in the row. */}
-      <div className="flex h-25.5 items-start">
-        <span
-          className={cn(
-            "font-display font-semibold leading-7.75 tracking-tight",
-            kioskCardTextClass("4xl", largeCardText),
-            kioskTitleClass(theme)
-          )}
-        >
-          {label}
-        </span>
+          even though this header is a single line for cards with no
+          `caption`, reserving the same space keeps the value below starting
+          at the same height on every card in the row. */}
+      <div className="flex h-25.5 items-start justify-center">
+        <div className="text-center">
+          {/* Plain string concatenation, not `cn()` — `cn`'s tailwind-merge
+              doesn't know about the custom `text-pulse-*` theme keys and
+              misreads them as conflicting with a `text-color` utility (e.g.
+              `text-foreground-strong`), silently dropping whichever comes
+              first. */}
+          <span className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
+            {label}
+          </span>
+          {caption && <p className="text-pulse-sm mt-0.5 leading-5 text-muted-foreground">{caption}</p>}
+        </div>
       </div>
       {/* Centered on the card as a whole (not the space between title and
           footer) — `absolute inset-0` positions it against the `Card`'s own
-          padding box, independent of the title/footer's own flow. */}
-      <div className="absolute inset-0 flex items-center justify-center">{value}</div>
-      <div className="flex items-end">{footer}</div>
+          padding box, independent of the title/footer's own flow. The inner
+          `h-44` box is the fixed-size "slot" for the value (fits `BigValue`
+          + its label with a little slack); content top-aligns within it, so
+          the figure's own top edge stays put regardless of label length —
+          only the (centered) slot itself moves as a whole. */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="flex h-44 items-start justify-center">{value}</div>
+      </div>
+      <div className="flex items-end justify-center">{footer}</div>
     </Card>
   )
 }
@@ -286,51 +281,46 @@ function StatCard({
  *  board is); `theme1`'s primary-tinted card keeps it at the theme's own
  *  neutral text colour instead, matching `kioskTitleClass`. */
 function BigValue({ theme, children }: { theme: KioskColorTheme; children: React.ReactNode }) {
+  // Plain string concatenation, not `cn()` — see the note on `StatCard`'s
+  // title span: tailwind-merge doesn't know the custom `text-pulse-*` keys
+  // and drops `text-pulse-xl` when it's combined with a `text-color` class.
   return (
     <span
-      className={cn(
-        "font-display font-semibold text-[8rem] leading-35.5 tracking-[0.01em] tabular-nums",
+      className={`text-pulse-xl font-display font-semibold leading-32 tracking-[0.01em] tabular-nums ${
         theme === "theme1" ? "text-foreground-strong" : "text-primary"
-      )}
+      }`}
     >
       {children}
     </span>
   )
 }
 
-/** The label-above-value structure shared by every main value block — "AED"
- *  over a currency amount, "sales today" over a count, or no label at all
+/** The label-under-value structure shared by every main value block — "AED"
+ *  under a currency amount, "sales today" under a count, or no label at all
  *  (the transactions count), all through the same markup. Static — no
- *  count-up tween, no update pulse. `largeCardText` only reaches the label —
- *  `BigValue` below it stays fixed at `text-[8rem]` regardless. */
+ *  count-up tween, no update pulse. */
 function ValueBlock({
   label,
-  largeCardText,
   theme,
   children,
 }: {
   label?: string
-  largeCardText: boolean
   theme: KioskColorTheme
   children: React.ReactNode
 }) {
   return (
     <span className="inline-flex flex-col items-center">
-      {label && (
-        <span className={cn("font-display font-semibold leading-7.75 tracking-tight text-foreground", kioskCardTextClass("4xl", largeCardText))}>
-          {label}
-        </span>
-      )}
       <BigValue theme={theme}>{children}</BigValue>
+      {label && <span className="text-pulse-lg font-display font-regular leading-11.25 tracking-tight text-foreground">{label}</span>}
     </span>
   )
 }
 
 /** A currency figure with the "AED" unit set small, stacked above the
  *  top-left corner of the value. */
-function CurrencyValue({ value, largeCardText, theme }: { value: number; largeCardText: boolean; theme: KioskColorTheme }) {
+function CurrencyValue({ value, theme }: { value: number; theme: KioskColorTheme }) {
   return (
-    <ValueBlock label="AED" largeCardText={largeCardText} theme={theme}>
+    <ValueBlock label="AED" theme={theme}>
       {formatAED(value)}
     </ValueBlock>
   )
@@ -341,16 +331,14 @@ function CurrencyValue({ value, largeCardText, theme }: { value: number; largeCa
 function CountValue({
   value,
   label,
-  largeCardText,
   theme,
 }: {
   value: number
   label?: string
-  largeCardText: boolean
   theme: KioskColorTheme
 }) {
   return (
-    <ValueBlock label={label} largeCardText={largeCardText} theme={theme}>
+    <ValueBlock label={label} theme={theme}>
       {value}
     </ValueBlock>
   )
@@ -366,7 +354,6 @@ interface SubMetric {
 interface PanelProps {
   theme: KioskColorTheme
   mode: KioskThemeMode
-  largeCardText: boolean
   tone: PanelTone
   title: string
   subtitle: string
@@ -381,7 +368,6 @@ interface PanelProps {
 function Panel({
   theme,
   mode,
-  largeCardText,
   tone,
   title,
   subtitle,
@@ -402,24 +388,20 @@ function Panel({
       {/* Fixed height matching `StatCard`'s header — guards against a long
           subtitle wrapping to a second line and pushing the value below
           further down than the single-line stat cards' values. */}
-      <div className="flex h-25.5 items-start justify-between gap-2.5">
-        <div>
-          <h3
-            className={cn(
-              "font-display font-semibold leading-7.75 tracking-tight",
-              kioskCardTextClass("4xl", largeCardText),
-              kioskTitleClass(theme)
-            )}
-          >
+      <div className="flex h-25.5 items-start justify-center gap-2.5">
+        <div className="text-center">
+          {/* Plain string concatenation, not `cn()` — see the note on
+              `StatCard`'s title span. */}
+          <h3 className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
             {title}
           </h3>
-          <p className={cn("mt-2 leading-4.5 text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>{subtitle}</p>
+          <p className="text-pulse-sm mt-0.5 leading-5 text-muted-foreground">{subtitle}</p>
         </div>
         {chipValue !== undefined && (
           <Badge
             variant={BADGE_VARIANT[tone]}
             size="lg"
-            className="hidden bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted text-4xl! font-semibold! leading-7.75! tracking-tight!"
+            className="hidden bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted text-4xl! font-semibold! leading-8.75! tracking-tight!"
           >
             AED <AedAmount value={chipValue} />
           </Badge>
@@ -428,50 +410,47 @@ function Panel({
 
       {/* Centered on the card as a whole (not the space between title and
           footer) — `absolute inset-0` positions it against the `Card`'s own
-          padding box, independent of the title/submetrics/footer's own flow. */}
+          padding box, independent of the title/submetrics/footer's own flow.
+          The inner `h-44` box is the fixed-size "slot" for the value (fits
+          `BigValue` + its label with a little slack); content top-aligns
+          within it, so the figure's own top edge stays put regardless of
+          label length — only the (centered) slot itself moves as a whole. */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <CountValue value={count} label={countLabel} largeCardText={largeCardText} theme={theme} />
+        <div className="flex h-44 items-start justify-center">
+          <CountValue value={count} label={countLabel} theme={theme} />
+        </div>
       </div>
 
       <div className="flex flex-col gap-3.75">
-        <div className="flex justify-end">
-          <div className="grid grid-cols-1 gap-1.25 pb-2">
-            {subMetrics.map((m) => (
-              <div key={m.label} className="flex items-baseline-last gap-2.5 justify-end">
-                <p
-                  className={cn(
-                    "whitespace-pre-line text-right font-semibold leading-4.5 tracking-tight text-muted-foreground",
-                    kioskCardTextClass("2xl", largeCardText)
-                  )}
-                >
-                  {m.label}
-                </p>
-                <span
-                  className={cn(
-                    "font-display font-semibold leading-7.75 tracking-tight tabular-nums",
-                    theme === "theme1" ? "text-foreground" : "text-primary",
-                    kioskCardTextClass("4xl", largeCardText)
-                  )}
-                >
-                  {m.value}
-                </span>
-              </div>
-            ))}
-          </div>
+        {/* Under the (absolutely-centered) main value block, side by side and
+            centered as a row rather than stacked and right-aligned. */}
+        <div className="flex justify-center gap-3.75 pb-2">
+          {subMetrics.map((m) => (
+            <div key={m.label} className="flex items-baseline-last gap-2.5">
+              <p className="text-pulse-sm font-semibold leading-5 tracking-tight text-muted-foreground">{m.label}</p>
+              {/* Plain string concatenation, not `cn()` — see the note on
+                  `StatCard`'s title span. */}
+              <span
+                className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight tabular-nums ${
+                  theme === "theme1" ? "text-foreground" : "text-primary"
+                }`}
+              >
+                {m.value}
+              </span>
+            </div>
+          ))}
         </div>
 
         <div className={cn("flex items-baseline justify-between pt-3.25 border-t-2", theme === "theme1" ? "border-black" : "border-border")}>
-          <span className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
-            {totalLabel}
-          </span>
+          <span className="text-pulse-sm font-semibold leading-5 tracking-tight text-muted-foreground">{totalLabel}</span>
+          {/* Plain string concatenation, not `cn()` — see the note on
+              `StatCard`'s title span. */}
           <span
-            className={cn(
-              "font-display font-semibold leading-7.75 tracking-tight tabular-nums",
-              theme === "theme1" ? "text-foreground-strong" : "text-primary",
-              kioskCardTextClass("4xl", largeCardText)
-            )}
+            className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight tabular-nums ${
+              theme === "theme1" ? "text-foreground-strong" : "text-primary"
+            }`}
           >
-            <span className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>AED</span> <AedAmount value={totalValue} />
+            <span className="text-pulse-sm font-semibold leading-5 tracking-tight text-muted-foreground">AED</span> <AedAmount value={totalValue} />
           </span>
         </div>
       </div>
