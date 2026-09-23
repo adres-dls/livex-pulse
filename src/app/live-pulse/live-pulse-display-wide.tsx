@@ -253,13 +253,13 @@ function StatCard({
     <Card
       variant="default"
       padding="none"
-      className={cn("flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
+      className={cn("relative flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
       style={kioskCardStyle(theme, mode)}
     >
       {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
           even though this header is a single line, reserving the same
-          space keeps the value below starting at the same height on
-          every card in the row. */}
+          space keeps the title's own baseline at the same height on every
+          card in the row. */}
       <div className="flex h-25.5 items-start">
         <span
           className={cn(
@@ -271,17 +271,11 @@ function StatCard({
           {label}
         </span>
       </div>
-      {/* Value and footer sit together at the card's bottom edge — `justify-between`
-          on the card pushes this group away from the title above, so it lands at
-          the same height on every card regardless of that card's own footer. */}
-      <div className="flex flex-col gap-2.5">
-        {/* Fixed height, bottom-anchored — a labeled value (e.g. "AED" above
-            the figure) overflows above this box rather than pushing the
-            figure itself down, so the figure's own baseline lands at the
-            same height whether or not it has a label above it. */}
-        <div className="flex items-end">{value}</div>
-        <div className="flex items-end pt-7.75">{footer}</div>
-      </div>
+      {/* Centered on the card as a whole (not the space between title and
+          footer) — `absolute inset-0` positions it against the `Card`'s own
+          padding box, independent of the title/footer's own flow. */}
+      <div className="absolute inset-0 flex items-center justify-center">{value}</div>
+      <div className="flex items-end">{footer}</div>
     </Card>
   )
 }
@@ -321,7 +315,7 @@ function ValueBlock({
   children: React.ReactNode
 }) {
   return (
-    <span className="inline-flex flex-col items-start">
+    <span className="inline-flex flex-col items-center">
       {label && (
         <span className={cn("font-display font-semibold leading-7.75 tracking-tight text-foreground", kioskCardTextClass("4xl", largeCardText))}>
           {label}
@@ -402,7 +396,7 @@ function Panel({
     <Card
       variant="default"
       padding="none"
-      className={cn("flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
+      className={cn("relative flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
       style={{ ...kioskCardStyle(theme, mode), ...kioskPanelBorderStyle(theme) }}
     >
       {/* Fixed height matching `StatCard`'s header — guards against a long
@@ -432,18 +426,15 @@ function Panel({
         )}
       </div>
 
-      {/* Value/submetrics row and total-value footer sit together at the
-          card's bottom edge — `justify-between` on the card pushes this
-          group away from the title above, mirroring `StatCard`. */}
-      <div className="flex flex-col gap-3.75">
-        <div className="flex items-end justify-between gap-3.25">
-          {/* Same fixed-height, bottom-anchored treatment as `StatCard` —
-              keeps the count's own baseline aligned with the stat cards'
-              values regardless of the "sales today"-style label above it. */}
-          <div className="flex h-40.75 items-end">
-            <CountValue value={count} label={countLabel} largeCardText={largeCardText} theme={theme} />
-          </div>
+      {/* Centered on the card as a whole (not the space between title and
+          footer) — `absolute inset-0` positions it against the `Card`'s own
+          padding box, independent of the title/submetrics/footer's own flow. */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <CountValue value={count} label={countLabel} largeCardText={largeCardText} theme={theme} />
+      </div>
 
+      <div className="flex flex-col gap-3.75">
+        <div className="flex justify-end">
           <div className="grid grid-cols-1 gap-1.25 pb-2">
             {subMetrics.map((m) => (
               <div key={m.label} className="flex items-baseline-last gap-2.5 justify-end">
