@@ -77,7 +77,7 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 largeCardText={largeCardText}
                 label="Total transactions · today"
-                value={<CountValue value={market.transactionsToday} largeCardText={largeCardText} />}
+                value={<CountValue value={market.transactionsToday} largeCardText={largeCardText} theme={theme} />}
                 footer={
                   <p className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
                     Session started {sessionStart}
@@ -90,8 +90,8 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 largeCardText={largeCardText}
                 label="Total market value · today"
-                value={<CurrencyValue value={market.totalMarketValue} largeCardText={largeCardText} />}
-                footer={<Sparkline className={cn("h-6.25 w-full", kioskTitleClass(theme))} />}
+                value={<CurrencyValue value={market.totalMarketValue} largeCardText={largeCardText} theme={theme} />}
+                footer={<Sparkline className={cn("h-6.25 w-full", theme === "theme1" ? "text-foreground-strong" : "text-primary")} />}
               />
 
               <StatCard
@@ -99,7 +99,7 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 largeCardText={largeCardText}
                 label="Avg. transaction value"
-                value={<CurrencyValue value={avgTransactionValue} largeCardText={largeCardText} />}
+                value={<CurrencyValue value={avgTransactionValue} largeCardText={largeCardText} theme={theme} />}
                 footer={
                   <p className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
                     Across all live groups
@@ -112,7 +112,7 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 largeCardText={largeCardText}
                 label="Top transaction · today"
-                value={<CurrencyValue value={market.topTransactionValue} largeCardText={largeCardText} />}
+                value={<CurrencyValue value={market.topTransactionValue} largeCardText={largeCardText} theme={theme} />}
                 footer={
                   <p className={cn("font-semibold leading-4.5 tracking-tight text-muted-foreground", kioskCardTextClass("2xl", largeCardText))}>
                     Sell · Off-plan · Masdar City
@@ -287,10 +287,18 @@ function StatCard({
 }
 
 /** Big tabular-nums figure shared by every main value block on this board —
- *  one typography treatment regardless of what (if anything) labels it. */
-function BigValue({ children }: { children: React.ReactNode }) {
+ *  one typography treatment regardless of what (if anything) labels it.
+ *  Accent-coloured under the default theme (every numerical value on the
+ *  board is); `theme1`'s primary-tinted card keeps it at the theme's own
+ *  neutral text colour instead, matching `kioskTitleClass`. */
+function BigValue({ theme, children }: { theme: KioskColorTheme; children: React.ReactNode }) {
   return (
-    <span className="font-display font-semibold text-foreground-strong text-[8rem] leading-35.5 tracking-[0.01em] tabular-nums">
+    <span
+      className={cn(
+        "font-display font-semibold text-[8rem] leading-35.5 tracking-[0.01em] tabular-nums",
+        theme === "theme1" ? "text-foreground-strong" : "text-primary"
+      )}
+    >
       {children}
     </span>
   )
@@ -304,10 +312,12 @@ function BigValue({ children }: { children: React.ReactNode }) {
 function ValueBlock({
   label,
   largeCardText,
+  theme,
   children,
 }: {
   label?: string
   largeCardText: boolean
+  theme: KioskColorTheme
   children: React.ReactNode
 }) {
   return (
@@ -317,16 +327,16 @@ function ValueBlock({
           {label}
         </span>
       )}
-      <BigValue>{children}</BigValue>
+      <BigValue theme={theme}>{children}</BigValue>
     </span>
   )
 }
 
 /** A currency figure with the "AED" unit set small, stacked above the
  *  top-left corner of the value. */
-function CurrencyValue({ value, largeCardText }: { value: number; largeCardText: boolean }) {
+function CurrencyValue({ value, largeCardText, theme }: { value: number; largeCardText: boolean; theme: KioskColorTheme }) {
   return (
-    <ValueBlock label="AED" largeCardText={largeCardText}>
+    <ValueBlock label="AED" largeCardText={largeCardText} theme={theme}>
       {formatAED(value)}
     </ValueBlock>
   )
@@ -334,9 +344,19 @@ function CurrencyValue({ value, largeCardText }: { value: number; largeCardText:
 
 /** A plain count figure — same block structure as `CurrencyValue` but with
  *  a freeform (or absent) label instead of a fixed "AED" unit. */
-function CountValue({ value, label, largeCardText }: { value: number; label?: string; largeCardText: boolean }) {
+function CountValue({
+  value,
+  label,
+  largeCardText,
+  theme,
+}: {
+  value: number
+  label?: string
+  largeCardText: boolean
+  theme: KioskColorTheme
+}) {
   return (
-    <ValueBlock label={label} largeCardText={largeCardText}>
+    <ValueBlock label={label} largeCardText={largeCardText} theme={theme}>
       {value}
     </ValueBlock>
   )
@@ -421,7 +441,7 @@ function Panel({
               keeps the count's own baseline aligned with the stat cards'
               values regardless of the "sales today"-style label above it. */}
           <div className="flex h-40.75 items-end">
-            <CountValue value={count} label={countLabel} largeCardText={largeCardText} />
+            <CountValue value={count} label={countLabel} largeCardText={largeCardText} theme={theme} />
           </div>
 
           <div className="grid grid-cols-1 gap-1.25 pb-2">
@@ -437,7 +457,8 @@ function Panel({
                 </p>
                 <span
                   className={cn(
-                    "font-display font-semibold leading-7.75 tracking-tight text-foreground tabular-nums",
+                    "font-display font-semibold leading-7.75 tracking-tight tabular-nums",
+                    theme === "theme1" ? "text-foreground" : "text-primary",
                     kioskCardTextClass("4xl", largeCardText)
                   )}
                 >
@@ -454,7 +475,8 @@ function Panel({
           </span>
           <span
             className={cn(
-              "font-display font-semibold leading-7.75 tracking-tight text-foreground-strong tabular-nums",
+              "font-display font-semibold leading-7.75 tracking-tight tabular-nums",
+              theme === "theme1" ? "text-foreground-strong" : "text-primary",
               kioskCardTextClass("4xl", largeCardText)
             )}
           >

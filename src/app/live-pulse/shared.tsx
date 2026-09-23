@@ -123,12 +123,13 @@ export function kioskCardStyle(theme: KioskColorTheme, mode: KioskThemeMode): CS
   return theme === "default" ? undefined : KIOSK_CARD_VARS[theme][mode]
 }
 
-/** Card/section title colour — brand primary by default, or the theme's main
- *  text colour under `theme1` (black in light, white in dark — see
- *  `KIOSK_CARD_VARS`; a title always lives inside a `Card`), since an
- *  accent-coloured title reads poorly once the card itself is primary-tinted. */
-export function kioskTitleClass(theme: KioskColorTheme): string {
-  return theme === "theme1" ? "text-foreground-strong" : "text-primary"
+/** Card/section title colour — the theme's main text colour (black in light,
+ *  white in dark under `theme1` — see `KIOSK_CARD_VARS`; a title always lives
+ *  inside a `Card`), the same in every theme. Numeric values carry the accent
+ *  colour instead (see `BigValue` and the submetric/total-value spans in
+ *  `live-pulse-display-wide.tsx`), so the title stays neutral. */
+export function kioskTitleClass(_theme: KioskColorTheme): string {
+  return "text-foreground-strong"
 }
 
 /** `Card` background — the default board keeps the translucent `bg-card/60`
