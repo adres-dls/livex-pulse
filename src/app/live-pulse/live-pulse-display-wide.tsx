@@ -243,6 +243,13 @@ function StatCard({
       className={cn("relative flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
       style={kioskCardStyle(theme, mode)}
     >
+      {/* Decorative mark, centered on the card and behind everything else —
+          placed first so it paints under the (also absolutely-positioned)
+          value below. */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <CardBackgroundMark />
+      </div>
+
       {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
           even though this header is a single line for cards with no
           `caption`, reserving the same space keeps the value below starting
@@ -311,7 +318,7 @@ function ValueBlock({
   return (
     <span className="inline-flex flex-col items-center">
       <BigValue theme={theme}>{children}</BigValue>
-      {label && <span className="text-pulse-lg font-display font-regular leading-11.25 tracking-tight text-foreground">{label}</span>}
+      {label && <span className="text-pulse-lg font-display font-regular leading-6 tracking-tight text-foreground">{label}</span>}
     </span>
   )
 }
@@ -345,6 +352,23 @@ function CountValue({
 }
 
 /* ─── Category panels ─────────────────────────────────────────────────────── */
+
+function CardBackgroundMark() {
+  return (
+    <svg
+      width="360.9"
+      height="248.7"
+      viewBox="0 0 550 379"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="text-foreground-strong"
+    >
+      <path d="M62.4688 300L5.96875 376H267.969L323.969 300" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M487.469 79L543.969 3H281.969L225.969 79" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
 
 interface SubMetric {
   label: string
@@ -385,6 +409,13 @@ function Panel({
       className={cn("relative flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
       style={{ ...kioskCardStyle(theme, mode), ...kioskPanelBorderStyle(theme) }}
     >
+      {/* Decorative mark, centered on the card and behind everything else —
+          placed first so it paints under the (also absolutely-positioned)
+          count value below. */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <CardBackgroundMark />
+      </div>
+
       {/* Fixed height matching `StatCard`'s header — guards against a long
           subtitle wrapping to a second line and pushing the value below
           further down than the single-line stat cards' values. */}
@@ -395,7 +426,7 @@ function Panel({
           <h3 className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
             {title}
           </h3>
-          <p className="text-pulse-sm mt-0.5 leading-5 text-muted-foreground">{subtitle}</p>
+          <p className="text-pulse-sm mt-1.5 leading-5 text-muted-foreground">{subtitle}</p>
         </div>
         {chipValue !== undefined && (
           <Badge
@@ -421,13 +452,12 @@ function Panel({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3.75">
-        {/* Under the (absolutely-centered) main value block, side by side and
-            centered as a row rather than stacked and right-aligned. */}
-        <div className="flex justify-center gap-3.75 pb-2">
+      <div className={cn("flex items-end justify-between gap-3.75 pt-3.25", theme === "theme1" ? "" : "")}>
+        {/* Sub-metrics on the left, each label stacked over its value. */}
+        <div className="flex gap-3.75">
           {subMetrics.map((m) => (
-            <div key={m.label} className="flex items-baseline-last gap-2.5">
-              <p className="text-pulse-sm font-semibold leading-5 tracking-tight text-muted-foreground">{m.label}</p>
+            <div key={m.label} className="flex flex-col gap-1.5">
+              <p className="text-pulse-sm font-regular leading-5 tracking-tight text-muted-foreground">{m.label}</p>
               {/* Plain string concatenation, not `cn()` — see the note on
                   `StatCard`'s title span. */}
               <span
@@ -441,8 +471,9 @@ function Panel({
           ))}
         </div>
 
-        <div className={cn("flex items-baseline justify-between pt-3.25 border-t-2", theme === "theme1" ? "border-black" : "border-border")}>
-          <span className="text-pulse-sm font-semibold leading-5 tracking-tight text-muted-foreground">{totalLabel}</span>
+        {/* Total on the right, label stacked over its value. */}
+        <div className="flex flex-col items-end gap-1.5">
+          <span className="text-pulse-sm font-regular leading-5 tracking-tight text-muted-foreground">{totalLabel}</span>
           {/* Plain string concatenation, not `cn()` — see the note on
               `StatCard`'s title span. */}
           <span
