@@ -7,7 +7,7 @@
 Livex Pulse is the "Live Pulse" kiosk board for the LIVEX exhibition stand — a full-bleed,
 English-only display of live Abu Dhabi real-estate market activity (transactions, market
 value, category breakdowns) meant for a venue monitor or LED wall, not a signed-in app.
-It's a single-row 6048×840 banner (`src/app/live-pulse/live-pulse-display-wide.tsx`) for
+It's a single-row 3840×534 banner (`src/app/live-pulse/live-pulse-display-wide.tsx`) for
 a video-wall strip, served directly at `/` (see `src/app/page.tsx`) — the only screen in
 this app.
 

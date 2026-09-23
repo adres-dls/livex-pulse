@@ -157,18 +157,22 @@ export type KioskCardTextStep = "3xs" | "xs" | "lg" | "xl" | "2xl" | "4xl"
 /** Base size ↔ one step up Tailwind's named type scale, for every card text
  *  size in use on the board (see `kioskCardTextClass`) — `"3xs"` is
  *  this app's `text-[0.625rem]` overline size, which isn't a named Tailwind
- *  step of its own. Every class name here is a literal string — including
- *  the "base" ones — so Tailwind's scanner generates all of them regardless
- *  of which branch runs at render time; a `text-${step}` template would only
- *  ever emit whichever size happened to be interpolated during a build-time
- *  scan, not a real utility class name. */
+ *  step of its own. `"2xl"` and `"4xl"` are pixel values rather than named
+ *  Tailwind steps because the board's canvas is scaled to a fixed
+ *  3840×534px (534/840 of its original 6048×840 size — see
+ *  `live-pulse-display-wide.tsx`), and named steps don't land on that ratio.
+ *  Every class name here is a literal string — including the "base" ones —
+ *  so Tailwind's scanner generates all of them regardless of which branch
+ *  runs at render time; a `text-${step}` template would only ever emit
+ *  whichever size happened to be interpolated during a build-time scan, not
+ *  a real utility class name. */
 const TEXT_STEP: Record<KioskCardTextStep, { base: string; up: string }> = {
   "3xs": { base: "text-[0.625rem]", up: "text-xs" },
   xs: { base: "text-xs", up: "text-sm" },
   lg: { base: "text-lg", up: "text-xl" },
   xl: { base: "text-xl", up: "text-2xl" },
-  "2xl": { base: "text-2xl", up: "text-3xl" },
-  "4xl": { base: "text-4xl", up: "text-[3.7rem]" },
+  "2xl": { base: "text-[15px]", up: "text-[19px]" },
+  "4xl": { base: "text-[23px]", up: "text-[38px]" },
 }
 
 /** Card copy size — `text-{step}` normally, or one step up when `enlarge`
