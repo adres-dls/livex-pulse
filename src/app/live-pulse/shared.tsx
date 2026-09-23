@@ -141,16 +141,6 @@ export function kioskCardBgClass(theme: KioskColorTheme): string {
   return theme === "theme1" ? "bg-card" : "bg-card/60 backdrop-blur-xl"
 }
 
-/** Black `Card` border for the category panels under `theme1` — the DS's own
- *  `--card-border-color` (consumed by `Card`'s default variant) is
- *  `transparent` by default, so panels otherwise show no edge against the
- *  primary-tinted page. Only the panels opt in (not the top stat cards):
- *  merge into a `Card`'s `style` alongside `kioskCardStyle`, never in
- *  place of it. */
-export function kioskPanelBorderStyle(theme: KioskColorTheme): CSSProperties | undefined {
-  return theme === "theme1" ? ({ "--card-border-color": "black" } as CSSProperties) : undefined
-}
-
 /** Drives `.dark` on `<html>` for as long as a board is mounted, independent
  *  of the signed-in app's own theme toggle — defaults to dark, flippable to
  *  light from the settings popover, and restores whatever state it found on
@@ -200,6 +190,37 @@ export function useKioskTheme() {
   }, [mode])
 
   return { mode, setMode, theme, setTheme }
+}
+
+/** Requests fullscreen on the board's first click/keypress/touch — browsers
+ *  block the Fullscreen API from firing on load itself (it requires a user
+ *  gesture), so this is as close to "fullscreen on load" as one can get: the
+ *  kiosk operator's first tap after launching the display takes it
+ *  fullscreen, and the listeners then detach. No-ops if already fullscreen
+ *  or the API isn't available. */
+export function useFullscreenOnFirstInteraction() {
+  useEffect(() => {
+    if (typeof document === "undefined" || !document.documentElement.requestFullscreen) return
+
+    const enterFullscreen = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {})
+      }
+      detach()
+    }
+
+    const detach = () => {
+      window.removeEventListener("click", enterFullscreen)
+      window.removeEventListener("keydown", enterFullscreen)
+      window.removeEventListener("touchstart", enterFullscreen)
+    }
+
+    window.addEventListener("click", enterFullscreen)
+    window.addEventListener("keydown", enterFullscreen)
+    window.addEventListener("touchstart", enterFullscreen)
+
+    return detach
+  }, [])
 }
 
 /* ─── Market snapshot shape ───────────────────────────────────────────────── */

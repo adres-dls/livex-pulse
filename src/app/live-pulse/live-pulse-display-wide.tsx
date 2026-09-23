@@ -9,10 +9,10 @@ import {
   formatAED,
   kioskCardBgClass,
   kioskCardStyle,
-  kioskPanelBorderStyle,
   kioskThemeStyle,
   kioskTitleClass,
   useClock,
+  useFullscreenOnFirstInteraction,
   useKioskTheme,
   type KioskColorTheme,
   type KioskThemeMode,
@@ -40,6 +40,7 @@ const MARKET: MarketState = {
 export function LivePulseDisplayWide() {
   const { mode, setMode, theme, setTheme } = useKioskTheme()
   const { time, sessionStart } = useClock()
+  useFullscreenOnFirstInteraction()
   const market = MARKET
   const avgTransactionValue =
     market.transactionsToday > 0 ? Math.round(market.totalMarketValue / market.transactionsToday) : 0
@@ -76,7 +77,7 @@ export function LivePulseDisplayWide() {
                 caption="Today"
                 value={<CountValue value={market.transactionsToday} theme={theme} />}
                 footer={
-                  <p className="text-pulse-sm text-center font-semibold leading-5 tracking-tight text-muted-foreground">
+                  <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
                     Session started {sessionStart}
                   </p>
                 }
@@ -97,7 +98,7 @@ export function LivePulseDisplayWide() {
                 label="Avg. transaction value"
                 value={<CurrencyValue value={avgTransactionValue} theme={theme} />}
                 footer={
-                  <p className="text-pulse-sm text-center font-semibold leading-5 tracking-tight text-muted-foreground">
+                  <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
                     Across all live groups
                   </p>
                 }
@@ -110,7 +111,7 @@ export function LivePulseDisplayWide() {
                 caption="Today"
                 value={<CurrencyValue value={market.topTransactionValue} theme={theme} />}
                 footer={
-                  <p className="text-pulse-sm text-center font-semibold leading-5 tracking-tight text-muted-foreground">
+                  <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
                     Sell · Off-plan · Masdar City
                   </p>
                 }
@@ -240,7 +241,9 @@ function StatCard({
     <Card
       variant="default"
       padding="none"
-      className={cn("relative flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
+      elevation="none"
+      borderless
+      className={cn("relative flex flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
       style={kioskCardStyle(theme, mode)}
     >
       {/* Decorative mark, centered on the card and behind everything else —
@@ -406,8 +409,10 @@ function Panel({
     <Card
       variant="default"
       padding="none"
-      className={cn("relative flex flex-col justify-between p-7.75", kioskCardBgClass(theme))}
-      style={{ ...kioskCardStyle(theme, mode), ...kioskPanelBorderStyle(theme) }}
+      elevation="none"
+      borderless
+      className={cn("relative flex flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
+      style={kioskCardStyle(theme, mode)}
     >
       {/* Decorative mark, centered on the card and behind everything else —
           placed first so it paints under the (also absolutely-positioned)
@@ -452,11 +457,11 @@ function Panel({
         </div>
       </div>
 
-      <div className={cn("flex items-end justify-between gap-3.75 pt-3.25", theme === "theme1" ? "" : "")}>
+      <div className={cn("flex items-end justify-center gap-3.75 pt-3.25", theme === "theme1" ? "" : "")}>
         {/* Sub-metrics on the left, each label stacked over its value. */}
         <div className="flex gap-3.75">
           {subMetrics.map((m) => (
-            <div key={m.label} className="flex flex-col gap-1.5">
+            <div key={m.label} className="flex flex-col items-center gap-1.5">
               <p className="text-pulse-sm font-regular leading-5 tracking-tight text-muted-foreground">{m.label}</p>
               {/* Plain string concatenation, not `cn()` — see the note on
                   `StatCard`'s title span. */}
@@ -472,7 +477,7 @@ function Panel({
         </div>
 
         {/* Total on the right, label stacked over its value. */}
-        <div className="flex flex-col items-end gap-1.5">
+        <div className="flex flex-col items-center gap-1.5">
           <span className="text-pulse-sm font-regular leading-5 tracking-tight text-muted-foreground">{totalLabel}</span>
           {/* Plain string concatenation, not `cn()` — see the note on
               `StatCard`'s title span. */}
