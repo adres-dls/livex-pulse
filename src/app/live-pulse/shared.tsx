@@ -226,12 +226,18 @@ export function useFullscreenOnFirstInteraction() {
 /* ─── Market snapshot shape ───────────────────────────────────────────────── */
 
 export interface MarketState {
+  /** Sell + Lease only — Development/EOI leads aren't transactions. */
   transactionsToday: number
+  /** Sell + Lease value only — Development/EOI leads aren't transactions. */
   totalMarketValue: number
   topTransactionValue: number
-  sell: { count: number; offPlan: number; ready: number; value: number }
-  development: { count: number; registeredProjects: number }
-  lease: { count: number; newCount: number; renewCount: number; value: number }
+  development: { count: number; value: number }
+  yearToDate: {
+    transactionsCount: number
+    transactionsYoyPct: number
+    marketValue: number
+    marketValueYoyPct: number
+  }
 }
 
 /* ─── Currency formatting + counting animation ───────────────────────────── */
@@ -240,6 +246,13 @@ const aedFormatter = new Intl.NumberFormat("en", { notation: "compact", maximumF
 
 export function formatAED(value: number) {
   return aedFormatter.format(value)
+}
+
+const countFormatter = new Intl.NumberFormat("en")
+
+/** Thousands-grouped count — e.g. `41,230` rather than a bare `41230`. */
+export function formatCount(value: number) {
+  return countFormatter.format(value)
 }
 
 /** Animates a number tweening from its previous value to `target` over
@@ -353,14 +366,4 @@ export function SettingsMenu({
       </PopoverContent>
     </Popover>
   )
-}
-
-/* ─── Panel tone → Badge variant ──────────────────────────────────────────── */
-
-export type PanelTone = "primary" | "secondary"
-
-// `Badge` has no "primary" variant — its primary-coloured variant is named "default".
-export const BADGE_VARIANT: Record<PanelTone, "default" | "secondary"> = {
-  primary: "default",
-  secondary: "secondary",
 }

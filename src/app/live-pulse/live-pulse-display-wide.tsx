@@ -1,12 +1,11 @@
 "use client"
 
 import { Badge, Card, cn } from "@adres/design-system"
+import { TrendingUp } from "lucide-react"
 import {
-  AedAmount,
-  BADGE_VARIANT,
-  Sparkline,
   SettingsMenu,
   formatAED,
+  formatCount,
   kioskCardBgClass,
   kioskCardStyle,
   kioskThemeStyle,
@@ -17,23 +16,30 @@ import {
   type KioskColorTheme,
   type KioskThemeMode,
   type MarketState,
-  type PanelTone,
 } from "./shared"
 
 // Static snapshot standing in for a day's activity — no live simulation feed
 // on this board, just representative figures for the booth display.
+// `transactionsToday`/`totalMarketValue` count Sell + Lease only — Development
+// (Expression of Interest) leads aren't transactions, so they're excluded.
 const MARKET: MarketState = {
   transactionsToday: 47,
   totalMarketValue: 66_000_000,
   topTransactionValue: 4_800_000,
-  sell: { count: 28, offPlan: 17, ready: 11, value: 52_400_000 },
-  development: { count: 15, registeredProjects: 9 },
-  lease: { count: 19, newCount: 11, renewCount: 8, value: 13_600_000 },
+  // `value` is a placeholder — no real EOI valuation source exists yet.
+  development: { count: 15, value: 4_200_000 },
+  yearToDate: {
+    transactionsCount: 41_230,
+    transactionsYoyPct: 38.6,
+    marketValue: 168_500_000_000,
+    marketValueYoyPct: 64.1,
+  },
 }
 
 /**
  * "Live Pulse" — the kiosk board for the LIVEX exhibition stand, fixed at
- * 3840×534px for an LED/video wall strip. All seven cards sit in a single
+ * 3840×534px for an LED/video wall strip. Six or seven cards (the
+ * Development/EOI card only shows once its count reaches 5) sit in a single
  * row, sized and spaced to use that width and height rather than floating in
  * extra whitespace. Shares its clock and theme logic (see `./shared`).
  */
@@ -44,6 +50,10 @@ export function LivePulseDisplayWide() {
   const market = MARKET
   const avgTransactionValue =
     market.transactionsToday > 0 ? Math.round(market.totalMarketValue / market.transactionsToday) : 0
+  // The Development/EOI card only earns its place once there's enough
+  // interest to show — stays hidden below that count, and the row falls
+  // back to 6 even columns instead of leaving its slot blank.
+  const developmentVisible = market.development.count >= 5
 
   return (
     // Escapes the root layout's centered `max-w-395` column — the canvas
@@ -69,7 +79,7 @@ export function LivePulseDisplayWide() {
 
         <div className="relative h-133.5 text-foreground">
           <div className="relative z-10 flex h-full flex-col px-5 pb-3.75">
-            <div className="grid min-h-0 flex-1 grid-cols-7 gap-2">
+            <div className={cn("grid min-h-0 flex-1 gap-2", developmentVisible ? "grid-cols-7" : "grid-cols-6")}>
               <StatCard
                 theme={theme}
                 mode={mode}
@@ -89,7 +99,6 @@ export function LivePulseDisplayWide() {
                 label="Total market value"
                 caption="Today"
                 value={<CurrencyValue value={market.totalMarketValue} theme={theme} />}
-                footer={<Sparkline className={cn("h-6.25 w-full", theme === "theme1" ? "text-foreground-strong" : "text-primary")} />}
               />
 
               <StatCard
@@ -117,48 +126,37 @@ export function LivePulseDisplayWide() {
                 }
               />
 
-              <Panel
+              {developmentVisible && (
+                <StatCard
+                  theme={theme}
+                  mode={mode}
+                  label="Development Interest"
+                  caption="EOI"
+                  value={<CurrencyValue value={market.development.value} theme={theme} />}
+                  footer={
+                    <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
+                      {market.development.count} EOIs today
+                    </p>
+                  }
+                />
+              )}
+
+              <StatCard
                 theme={theme}
                 mode={mode}
-                tone="primary"
-                title="Sell Transactions"
-                subtitle="Off-plan & ready unit sales"
-                chipValue={market.sell.value}
-                count={market.sell.count}
-                countLabel="Sales today"
-                subMetrics={[
-                  { label: "Off-plan", value: market.sell.offPlan },
-                  { label: "Ready", value: market.sell.ready },
-                ]}
-                totalLabel="Total Sales Value"
-                totalValue={market.sell.value}
+                label="Total transactions"
+                caption="Year to date"
+                value={<CountValue value={market.yearToDate.transactionsCount} theme={theme} />}
+                footer={<YoyBadge pct={market.yearToDate.transactionsYoyPct} />}
               />
-              <Panel
+
+              <StatCard
                 theme={theme}
                 mode={mode}
-                tone="secondary"
-                title="Development Interest"
-                subtitle="Expression of Interest (EOI) service"
-                count={market.development.count}
-                countLabel="EOIs today"
-                subMetrics={[{ label: "Registered projects", value: market.development.registeredProjects }]}
-                totalLabel="Total Interest Value"
-                totalValue={0}
-              />
-              <Panel
-                theme={theme}
-                mode={mode}
-                tone="primary"
-                title="Lease Transactions"
-                subtitle="New contracts & renewals"
-                count={market.lease.count}
-                countLabel="Contracts today"
-                subMetrics={[
-                  { label: "New", value: market.lease.newCount },
-                  { label: "Renew", value: market.lease.renewCount },
-                ]}
-                totalLabel="Total Lease Value"
-                totalValue={market.lease.value}
+                label="Total market value"
+                caption="Year to date"
+                value={<CurrencyValue value={market.yearToDate.marketValue} theme={theme} />}
+                footer={<YoyBadge pct={market.yearToDate.marketValueYoyPct} />}
               />
             </div>
           </div>
@@ -285,6 +283,18 @@ function StatCard({
   )
 }
 
+/** Year-over-year delta pill for the two "year to date" cards — mirrors the
+ *  ADREC website's own trend badge (a `success`-tinted pill with an up arrow
+ *  and a percentage) rather than inventing a new treatment. */
+function YoyBadge({ pct }: { pct: number }) {
+  return (
+    <Badge variant="success" size="sm" className="gap-1">
+      <TrendingUp className="size-3" aria-hidden />
+      <span className="text-pulse-sm font-medium leading-none tabular-nums">{pct.toFixed(2)}% YoY</span>
+    </Badge>
+  )
+}
+
 /** Big tabular-nums figure shared by every main value block on this board —
  *  one typography treatment regardless of what (if anything) labels it.
  *  Accent-coloured under the default theme (every numerical value on the
@@ -349,12 +359,12 @@ function CountValue({
 }) {
   return (
     <ValueBlock label={label} theme={theme}>
-      {value}
+      {formatCount(value)}
     </ValueBlock>
   )
 }
 
-/* ─── Category panels ─────────────────────────────────────────────────────── */
+/* ─── Card background mark ────────────────────────────────────────────────── */
 
 function CardBackgroundMark() {
   return (
@@ -370,126 +380,5 @@ function CardBackgroundMark() {
       <path d="M62.4688 300L5.96875 376H267.969L323.969 300" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path d="M487.469 79L543.969 3H281.969L225.969 79" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
-  )
-}
-
-interface SubMetric {
-  label: string
-  value: number
-}
-
-interface PanelProps {
-  theme: KioskColorTheme
-  mode: KioskThemeMode
-  tone: PanelTone
-  title: string
-  subtitle: string
-  chipValue?: number
-  count: number
-  countLabel: string
-  subMetrics: SubMetric[]
-  totalLabel: string
-  totalValue: number
-}
-
-function Panel({
-  theme,
-  mode,
-  tone,
-  title,
-  subtitle,
-  chipValue,
-  count,
-  countLabel,
-  subMetrics,
-  totalLabel,
-  totalValue,
-}: PanelProps) {
-  return (
-    <Card
-      variant="default"
-      padding="none"
-      elevation="none"
-      borderless
-      className={cn("relative flex flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
-      style={kioskCardStyle(theme, mode)}
-    >
-      {/* Decorative mark, centered on the card and behind everything else —
-          placed first so it paints under the (also absolutely-positioned)
-          count value below. */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <CardBackgroundMark />
-      </div>
-
-      {/* Fixed height matching `StatCard`'s header — guards against a long
-          subtitle wrapping to a second line and pushing the value below
-          further down than the single-line stat cards' values. */}
-      <div className="flex h-25.5 items-start justify-center gap-2.5">
-        <div className="text-center">
-          {/* Plain string concatenation, not `cn()` — see the note on
-              `StatCard`'s title span. */}
-          <h3 className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
-            {title}
-          </h3>
-          <p className="text-pulse-sm mt-1.5 leading-5 text-muted-foreground">{subtitle}</p>
-        </div>
-        {chipValue !== undefined && (
-          <Badge
-            variant={BADGE_VARIANT[tone]}
-            size="lg"
-            className="hidden bg-primary text-primary-muted! dark:bg-primary dark:text-primary-muted text-4xl! font-semibold! leading-8.75! tracking-tight!"
-          >
-            AED <AedAmount value={chipValue} />
-          </Badge>
-        )}
-      </div>
-
-      {/* Centered on the card as a whole (not the space between title and
-          footer) — `absolute inset-0` positions it against the `Card`'s own
-          padding box, independent of the title/submetrics/footer's own flow.
-          The inner `h-44` box is the fixed-size "slot" for the value (fits
-          `BigValue` + its label with a little slack); content top-aligns
-          within it, so the figure's own top edge stays put regardless of
-          label length — only the (centered) slot itself moves as a whole. */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex h-44 items-start justify-center">
-          <CountValue value={count} label={countLabel} theme={theme} />
-        </div>
-      </div>
-
-      <div className={cn("flex items-end justify-center gap-3.75 pt-3.25", theme === "theme1" ? "" : "")}>
-        {/* Sub-metrics on the left, each label stacked over its value. */}
-        <div className="flex gap-3.75">
-          {subMetrics.map((m) => (
-            <div key={m.label} className="flex flex-col items-center gap-1.5">
-              <p className="text-pulse-sm font-regular leading-5 tracking-tight text-muted-foreground">{m.label}</p>
-              {/* Plain string concatenation, not `cn()` — see the note on
-                  `StatCard`'s title span. */}
-              <span
-                className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight tabular-nums ${
-                  theme === "theme1" ? "text-foreground" : "text-primary"
-                }`}
-              >
-                {m.value}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Total on the right, label stacked over its value. */}
-        <div className="flex flex-col items-center gap-1.5">
-          <span className="text-pulse-sm font-regular leading-5 tracking-tight text-muted-foreground">{totalLabel}</span>
-          {/* Plain string concatenation, not `cn()` — see the note on
-              `StatCard`'s title span. */}
-          <span
-            className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight tabular-nums ${
-              theme === "theme1" ? "text-foreground-strong" : "text-primary"
-            }`}
-          >
-            <span className="text-pulse-sm font-semibold leading-5 tracking-tight text-muted-foreground">AED</span> <AedAmount value={totalValue} />
-          </span>
-        </div>
-      </div>
-    </Card>
   )
 }
