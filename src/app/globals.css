@@ -73,7 +73,7 @@
  *   sm — captions, subtitles, submetric labels, footers
  */
 @theme {
-  --text-pulse-xl: 6.25rem;
+  --text-pulse-xl: 4.85rem;
   --text-pulse-lg: 2.25rem;
   --text-pulse-md: 1.625rem;
   --text-pulse-sm: 1.2625rem;
