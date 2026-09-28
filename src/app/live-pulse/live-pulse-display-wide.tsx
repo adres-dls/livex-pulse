@@ -68,7 +68,9 @@ export function LivePulseDisplayWide() {
     // per-element changes.
     <div className="fixed inset-0 overflow-auto bg-background" style={kioskThemeStyle(theme, mode)}>
       <div className="w-960">
-        <div className="relative h-151.25 text-foreground">
+        {/* Debug aid — a red bottom border marking where the fixed 534px
+            canvas ends. Remove once the layout's been checked against it. */}
+        <div className="relative h-133.5 text-foreground border-b border-red-500">
           {/* A single settings control, floated over the last card's corner —
               unlike the logo/time/Live badge (see `CardBrand`), it's an
               operator control rather than branding, so it doesn't need to
@@ -255,7 +257,7 @@ function StatCard({
         padding="none"
         elevation="none"
         borderless
-        className={cn("relative flex flex-1 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
+        className={cn("relative flex h-112 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
         style={kioskCardStyle(theme, mode)}
       >
         {/* Decorative mark, centered on the card and behind everything else —
