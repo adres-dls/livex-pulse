@@ -11,7 +11,6 @@ import {
   kioskThemeStyle,
   kioskTitleClass,
   useClock,
-  useFullscreenOnFirstInteraction,
   useKioskTheme,
   type KioskColorTheme,
   type KioskThemeMode,
@@ -46,7 +45,6 @@ const MARKET: MarketState = {
 export function LivePulseDisplayWide() {
   const { mode, setMode, theme, setTheme } = useKioskTheme()
   const { time, sessionStart } = useClock()
-  useFullscreenOnFirstInteraction()
   const market = MARKET
   const avgTransactionValue =
     market.transactionsToday > 0 ? Math.round(market.totalMarketValue / market.transactionsToday) : 0

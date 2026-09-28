@@ -192,37 +192,6 @@ export function useKioskTheme() {
   return { mode, setMode, theme, setTheme }
 }
 
-/** Requests fullscreen on the board's first click/keypress/touch — browsers
- *  block the Fullscreen API from firing on load itself (it requires a user
- *  gesture), so this is as close to "fullscreen on load" as one can get: the
- *  kiosk operator's first tap after launching the display takes it
- *  fullscreen, and the listeners then detach. No-ops if already fullscreen
- *  or the API isn't available. */
-export function useFullscreenOnFirstInteraction() {
-  useEffect(() => {
-    if (typeof document === "undefined" || !document.documentElement.requestFullscreen) return
-
-    const enterFullscreen = () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {})
-      }
-      detach()
-    }
-
-    const detach = () => {
-      window.removeEventListener("click", enterFullscreen)
-      window.removeEventListener("keydown", enterFullscreen)
-      window.removeEventListener("touchstart", enterFullscreen)
-    }
-
-    window.addEventListener("click", enterFullscreen)
-    window.addEventListener("keydown", enterFullscreen)
-    window.addEventListener("touchstart", enterFullscreen)
-
-    return detach
-  }, [])
-}
-
 /* ─── Market snapshot shape ───────────────────────────────────────────────── */
 
 export interface MarketState {
