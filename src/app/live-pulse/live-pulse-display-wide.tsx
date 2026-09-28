@@ -89,7 +89,7 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 time={time}
                 label="Total transactions"
-                caption="Today"
+                caption="LiveX Week"
                 value={<CountValue value={market.transactionsToday} theme={theme} />}
                 footer={
                   <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
@@ -104,7 +104,7 @@ export function LivePulseDisplayWide() {
                 time={time}
                 showBrand={false}
                 label="Total market value"
-                caption="Today"
+                caption="LiveX Week"
                 value={<CurrencyValue value={market.totalMarketValue} theme={theme} />}
               />
 
@@ -127,7 +127,7 @@ export function LivePulseDisplayWide() {
                 time={time}
                 showBrand={false}
                 label="Top transaction"
-                caption="Today"
+                caption="LiveX Week"
                 value={<CurrencyValue value={market.topTransactionValue} theme={theme} />}
                 footer={
                   <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
@@ -306,7 +306,7 @@ function YoyBadge({ pct }: { pct: number }) {
   return (
     <Badge variant="success" size="sm" className="gap-1">
       <TrendingUp className="size-3" aria-hidden />
-      <span className="text-pulse-sm font-semibold leading-none tabular-nums">{pct.toFixed(2)}% YoY</span>
+      <span className="text-pulse-sm font-semibold leading-none tabular-nums">{pct.toFixed(2)}%</span>
     </Badge>
   )
 }
