@@ -1,7 +1,6 @@
 "use client"
 
 import { Badge, Card, cn } from "@adres/design-system"
-import { TrendingUp } from "lucide-react"
 import {
   SettingsMenu,
   formatAED,
@@ -29,9 +28,7 @@ const MARKET: MarketState = {
   development: { count: 15, value: 4_200_000 },
   yearToDate: {
     transactionsCount: 41_230,
-    transactionsYoyPct: 38.6,
     marketValue: 168_500_000_000,
-    marketValueYoyPct: 64.1,
   },
 }
 
@@ -113,6 +110,7 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 time={time}
                 label="Avg. transaction value"
+                caption="LiveX Week"
                 value={<CurrencyValue value={avgTransactionValue} theme={theme} />}
                 footer={
                   <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
@@ -142,11 +140,11 @@ export function LivePulseDisplayWide() {
                   mode={mode}
                   time={time}
                   label="Development Interest"
-                  caption="EOI"
+                  caption="LiveX Week"
                   value={<CurrencyValue value={market.development.value} theme={theme} />}
                   footer={
                     <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
-                      {market.development.count} EOIs today
+                      {market.development.count} EOIs
                     </p>
                   }
                 />
@@ -160,7 +158,6 @@ export function LivePulseDisplayWide() {
                 label="Total transactions"
                 caption="Year to date"
                 value={<CountValue value={market.yearToDate.transactionsCount} theme={theme} />}
-                footer={<YoyBadge pct={market.yearToDate.transactionsYoyPct} />}
               />
 
               <StatCard
@@ -170,7 +167,6 @@ export function LivePulseDisplayWide() {
                 label="Total market value"
                 caption="Year to date"
                 value={<CurrencyValue value={market.yearToDate.marketValue} theme={theme} />}
-                footer={<YoyBadge pct={market.yearToDate.marketValueYoyPct} />}
               />
             </div>
           </div>
@@ -296,18 +292,6 @@ function StatCard({
         <div className="flex items-end justify-center">{footer}</div>
       </Card>
     </div>
-  )
-}
-
-/** Year-over-year delta pill for the two "year to date" cards — mirrors the
- *  ADREC website's own trend badge (a `success`-tinted pill with an up arrow
- *  and a number) rather than inventing a new treatment. */
-function YoyBadge({ pct }: { pct: number }) {
-  return (
-    <Badge variant="success" size="sm" className="gap-1">
-      <TrendingUp className="size-3" aria-hidden />
-      <span className="text-pulse-sm font-semibold leading-none tabular-nums">{pct.toFixed(2)}</span>
-    </Badge>
   )
 }
 
