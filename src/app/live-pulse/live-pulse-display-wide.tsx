@@ -31,6 +31,16 @@ const MARKET: MarketState = {
   },
 }
 
+// Column widths for the "Total transactions" card's Volume/Value pair —
+// shared between the value columns and their background marks (see
+// `markColumnWidths` on `StatCard`) so the two rows' columns line up instead
+// of drifting apart. Equal and sized close to the mark's own ~361px width
+// (narrower than the default `w-95`, to fit two side by side on this card's
+// narrower column) rather than fit to each value's own (very different)
+// text width — otherwise the narrower Volume column would force its mark to
+// overflow past its column and overlap the value's own digits.
+const TOTAL_TRANSACTIONS_VALUE_WIDTHS = ["w-88", "w-88"]
+
 /**
  * "Live Pulse" — the kiosk board for the LIVEX exhibition stand, fixed at
  * 3840×534px for an LED/video wall strip. Four or five cards (the
@@ -78,14 +88,31 @@ export function LivePulseDisplayWide() {
           </div>
 
           <div className="relative z-10 flex h-full flex-col px-5 pb-3.75">
-            <div className={cn("grid min-h-0 flex-1 gap-2", developmentVisible ? "grid-cols-5" : "grid-cols-4")}>
+            <div
+              className={cn(
+                "grid min-h-0 flex-1 gap-2",
+                developmentVisible ? "grid-cols-[1.5fr_repeat(5,1fr)]" : "grid-cols-[1.5fr_repeat(4,1fr)]",
+              )}
+            >
               <StatCard
                 theme={theme}
                 mode={mode}
                 time={time}
+                backgroundMarks={2}
+                markColumnWidths={TOTAL_TRANSACTIONS_VALUE_WIDTHS}
+                cardClassName="px-9.75"
                 label="Total transactions"
                 caption="LiveX Week"
-                value={<CountValue value={market.transactionsToday} theme={theme} />}
+                value={
+                  <div className="flex items-start gap-8">
+                    <ValueColumn className={TOTAL_TRANSACTIONS_VALUE_WIDTHS[0]}>
+                      <CountValue value={market.transactionsToday} label="Volume" theme={theme} />
+                    </ValueColumn>
+                    <ValueColumn className={TOTAL_TRANSACTIONS_VALUE_WIDTHS[1]}>
+                      <CurrencyValue value={market.totalMarketValue} label="Value" theme={theme} />
+                    </ValueColumn>
+                  </div>
+                }
                 footer={
                   <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
                     Session started {sessionStart}
@@ -194,6 +221,10 @@ function StatCard({
   mode,
   time,
   showBrand = true,
+  backgroundMarks = 1,
+  markColumnWidths,
+  className,
+  cardClassName,
   label,
   caption,
   value,
@@ -206,6 +237,23 @@ function StatCard({
    *  `h-17.75` row stays empty rather than collapsing, so every card in the
    *  row still lines up at the same height. */
   showBrand?: boolean
+  /** Number of marks to lay out side by side (each in a `w-95` column by
+   *  default — see `ValueColumn`) in the card's shared centered slot. A
+   *  multi-value card (e.g. Volume + Value) passes its value count here so
+   *  each value gets its own mark, still centered using the exact same box
+   *  as a single-value card's mark — centering it per value block instead
+   *  would use a shorter box (just that value's own height) and end up
+   *  vertically offset from every other card. */
+  backgroundMarks?: number
+  /** Per-mark column width class, overriding the `w-95` default — pass the
+   *  same widths given to the matching `ValueColumn`s so each mark's column
+   *  lines up with the value it sits behind instead of the two rows (marks
+   *  vs. values) drifting apart when their content widths differ. */
+  markColumnWidths?: string[]
+  /** Extra classes on the grid cell itself — e.g. `col-span-2` for a wider card. */
+  className?: string
+  /** Extra classes on the `Card` surface itself — e.g. extra x padding for a narrower card. */
+  cardClassName?: string
   label: string
   caption?: string
   value: React.ReactNode
@@ -215,7 +263,7 @@ function StatCard({
     // The brand block sits outside (above) the card itself — on the page
     // background, not the card surface — repeating per column instead of
     // once in a shared page header (see `CardBrand`).
-    <div className="flex flex-col">
+    <div className={cn("flex flex-col", className)}>
       <div className="flex h-17.75 items-center">
         {showBrand && <CardBrand time={time} mode={mode} theme={theme} />}
       </div>
@@ -225,14 +273,18 @@ function StatCard({
         padding="none"
         elevation="none"
         borderless
-        className={cn("relative flex h-112 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
+        className={cn("relative flex h-112 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme), cardClassName)}
         style={kioskCardStyle(theme, mode)}
       >
         {/* Decorative mark, centered on the same (nudged-down) space the
             value below is centered on and behind everything else — placed
             first so it paints under the (also absolutely-positioned) value. */}
-        <div className="pointer-events-none absolute inset-x-0 top-8 bottom-0 flex items-center justify-center">
-          <CardBackgroundMark />
+        <div className="pointer-events-none absolute inset-x-0 top-8 bottom-0 flex items-center justify-center gap-16">
+          {Array.from({ length: backgroundMarks }, (_, i) => (
+            <div key={i} className={cn("flex items-center justify-center", markColumnWidths?.[i] ?? "w-95")}>
+              <CardBackgroundMark />
+            </div>
+          ))}
         </div>
 
         {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
@@ -324,12 +376,17 @@ function DirhamSign({ className }: { className?: string }) {
 }
 
 /** A currency figure with the dirham symbol set before the value, both
- *  sharing the same accent colour as a single unit. */
-function CurrencyValue({ value, theme }: { value: number; theme: KioskColorTheme }) {
+ *  sharing the same accent colour as a single unit — optionally captioned
+ *  below (e.g. "Value"), matching `ValueBlock`'s label styling so a currency
+ *  and count figure can sit side by side and still read as the same family. */
+function CurrencyValue({ value, theme, label }: { value: number; theme: KioskColorTheme; label?: string }) {
   return (
-    <span className={`inline-flex items-center gap-3 ${theme === "theme1" ? "text-foreground-strong" : "text-primary"}`}>
-      <DirhamSign className="h-22 w-auto" />
-      <BigValue theme={theme}>{formatAED(value)}</BigValue>
+    <span className="inline-flex flex-col items-center">
+      <span className={`inline-flex items-center gap-3 ${theme === "theme1" ? "text-foreground-strong" : "text-primary"}`}>
+        <DirhamSign className="h-22 w-auto" />
+        <BigValue theme={theme}>{formatAED(value)}</BigValue>
+      </span>
+      {label && <span className="text-pulse-lg font-display font-regular leading-6 tracking-tight text-foreground">{label}</span>}
     </span>
   )
 }
@@ -369,4 +426,12 @@ function CardBackgroundMark() {
       <path d="M487.469 79L543.969 3H281.969L225.969 79" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
+}
+
+/** Wraps a single value block (e.g. "Volume" or "Value") with its own
+ *  centered background mark — for a multi-value card where each figure needs
+ *  its own graphic instead of sharing the one `StatCard` already renders
+ *  behind the whole card (pass `hideBackgroundMark` there when using this). */
+function ValueColumn({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn("flex w-95 items-center justify-center", className)}>{children}</div>
 }
