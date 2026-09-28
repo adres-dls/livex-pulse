@@ -70,7 +70,7 @@ export function LivePulseDisplayWide() {
       <div className="w-960">
         {/* Debug aid — a red bottom border marking where the fixed 534px
             canvas ends. Remove once the layout's been checked against it. */}
-        <div className="relative h-133.5 text-foreground border-b border-red-500">
+        <div className="relative h-133.5 text-foreground border-b border-black">
           {/* A single settings control, floated over the last card's corner —
               unlike the logo/time/Live badge (see `CardBrand`), it's an
               operator control rather than branding, so it doesn't need to
@@ -260,10 +260,10 @@ function StatCard({
         className={cn("relative flex h-112 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
         style={kioskCardStyle(theme, mode)}
       >
-        {/* Decorative mark, centered on the card and behind everything else —
-            placed first so it paints under the (also absolutely-positioned)
-            value below. */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        {/* Decorative mark, centered on the same (nudged-down) space the
+            value below is centered on and behind everything else — placed
+            first so it paints under the (also absolutely-positioned) value. */}
+        <div className="pointer-events-none absolute inset-x-0 top-8 bottom-0 flex items-center justify-center">
           <CardBackgroundMark />
         </div>
 
@@ -285,13 +285,14 @@ function StatCard({
           </div>
         </div>
         {/* Centered on the card as a whole (not the space between title and
-            footer) — `absolute inset-0` positions it against the `Card`'s own
+            footer), but nudged down (`top-8` instead of `inset-0`) for a
+            bigger gap under the title — positioned against the `Card`'s own
             padding box, independent of the title/footer's own flow. The inner
             `h-44` box is the fixed-size "slot" for the value (fits `BigValue`
             + its label with a little slack); content top-aligns within it, so
             the figure's own top edge stays put regardless of label length —
             only the (centered) slot itself moves as a whole. */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-x-0 top-8 bottom-0 flex items-center justify-center">
           <div className="flex h-44 items-start justify-center">{value}</div>
         </div>
         <div className="flex items-end justify-center">{footer}</div>
