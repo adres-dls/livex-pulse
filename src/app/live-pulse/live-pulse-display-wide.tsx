@@ -60,29 +60,34 @@ export function LivePulseDisplayWide() {
     // itself stays a literal 3840×534px block in normal flow, so this
     // wrapper's `overflow-auto` can scroll to it instead of clipping it. On
     // an actual 3840×534 kiosk window there's nothing to scroll; anywhere
-    // smaller, the whole board is still reachable by scrolling — the header
-    // scrolls right along with the card row beneath it (both live inside the
-    // same `w-960` block) rather than staying pinned to the viewport.
+    // smaller, the whole board is still reachable by scrolling.
     //
     // `style` carries `theme`'s CSS-variable overrides (see `kioskThemeStyle`)
-    // — set here, on the common ancestor of the header and the canvas below,
-    // so both pick it up through inheritance with no per-element changes.
+    // — set here, on the common ancestor of the settings button and the
+    // canvas below, so both pick it up through inheritance with no
+    // per-element changes.
     <div className="fixed inset-0 overflow-auto bg-background" style={kioskThemeStyle(theme, mode)}>
       <div className="w-960">
-        <Header
-          time={time}
-          mode={mode}
-          onModeChange={setMode}
-          theme={theme}
-          onThemeChange={setTheme}
-        />
+        <div className="relative h-151.25 text-foreground">
+          {/* A single settings control, floated over the last card's corner —
+              unlike the logo/time/Live badge (see `CardBrand`), it's an
+              operator control rather than branding, so it doesn't need to
+              repeat on every card. */}
+          <div className="absolute right-8.75 top-3.75 z-20 flex items-center bg-background/70 rounded-full backdrop-blur-xl">
+            <SettingsMenu
+              mode={mode}
+              onModeChange={setMode}
+              theme={theme}
+              onThemeChange={setTheme}
+            />
+          </div>
 
-        <div className="relative h-133.5 text-foreground">
           <div className="relative z-10 flex h-full flex-col px-5 pb-3.75">
             <div className={cn("grid min-h-0 flex-1 gap-2", developmentVisible ? "grid-cols-7" : "grid-cols-6")}>
               <StatCard
                 theme={theme}
                 mode={mode}
+                time={time}
                 label="Total transactions"
                 caption="Today"
                 value={<CountValue value={market.transactionsToday} theme={theme} />}
@@ -96,6 +101,8 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
+                time={time}
+                showBrand={false}
                 label="Total market value"
                 caption="Today"
                 value={<CurrencyValue value={market.totalMarketValue} theme={theme} />}
@@ -104,6 +111,7 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
+                time={time}
                 label="Avg. transaction value"
                 value={<CurrencyValue value={avgTransactionValue} theme={theme} />}
                 footer={
@@ -116,6 +124,8 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
+                time={time}
+                showBrand={false}
                 label="Top transaction"
                 caption="Today"
                 value={<CurrencyValue value={market.topTransactionValue} theme={theme} />}
@@ -130,6 +140,7 @@ export function LivePulseDisplayWide() {
                 <StatCard
                   theme={theme}
                   mode={mode}
+                  time={time}
                   label="Development Interest"
                   caption="EOI"
                   value={<CurrencyValue value={market.development.value} theme={theme} />}
@@ -144,6 +155,8 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
+                time={time}
+                showBrand={false}
                 label="Total transactions"
                 caption="Year to date"
                 value={<CountValue value={market.yearToDate.transactionsCount} theme={theme} />}
@@ -153,6 +166,7 @@ export function LivePulseDisplayWide() {
               <StatCard
                 theme={theme}
                 mode={mode}
+                time={time}
                 label="Total market value"
                 caption="Year to date"
                 value={<CurrencyValue value={market.yearToDate.marketValue} theme={theme} />}
@@ -166,55 +180,40 @@ export function LivePulseDisplayWide() {
   )
 }
 
-/* ─── Header ──────────────────────────────────────────────────────────────── */
+/* ─── Card brand block ────────────────────────────────────────────────────── */
 
-function Header({
+/** Logo + time + "Live" badge — repeated on every card (instead of once in a
+ *  shared page header) so the branding is visible on whichever segment faces
+ *  a viewer on the circular display, no matter how it's rotated. */
+function CardBrand({
   time,
   mode,
-  onModeChange,
   theme,
-  onThemeChange,
 }: {
   time: string
   mode: KioskThemeMode
-  onModeChange: (mode: KioskThemeMode) => void
   theme: KioskColorTheme
-  onThemeChange: (theme: KioskColorTheme) => void
 }) {
   return (
-    // In normal flow (not `fixed`/`sticky`) inside the same `w-960` block as
-    // the card row below it, so it scrolls right along with the cards when
-    // this board is previewed narrower than its native 3840px.
-    <header className="flex h-17.75 items-center justify-between gap-5 px-5">
-      <div className="flex items-center gap-3.25">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={
-            mode === "dark" || theme === "theme1"
-              ? "/images/logo/livex-white-logo.png"
-              : "/images/logo/livex-logo.png"
-          }
-          alt="Abu Dhabi Real Estate Centre"
-          className="h-9 w-auto"
-        />
-        <div className="flex items-center gap-2.5 border-s border-border ps-3.75">
-          <span className="text-[15px] font-semibold leading-5 tracking-tight tabular-nums text-foreground">{time}</span>
-          <Badge variant="success" size="sm">
-            <span aria-hidden className="size-1.5 rounded-full bg-success-foreground" />
-            <span className="text-sm font-medium leading-none uppercase tracking-widest">Live</span>
-          </Badge>
-        </div>
+    <div className="flex items-center gap-3.25">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={
+          mode === "dark" || theme === "theme1"
+            ? "/images/logo/livex-white-logo.png"
+            : "/images/logo/livex-logo.png"
+        }
+        alt="Abu Dhabi Real Estate Centre"
+        className="h-9 w-auto"
+      />
+      <div className="flex items-center gap-2.5 border-s border-border ps-3.75">
+        <span className="text-[15px] font-semibold leading-5 tracking-tight tabular-nums text-foreground">{time}</span>
+        <Badge variant="success" size="sm">
+          <span aria-hidden className="size-1.5 rounded-full bg-success-foreground" />
+          <span className="text-sm font-semibold leading-none uppercase tracking-widest">Live</span>
+        </Badge>
       </div>
-
-      <div className="flex items-center bg-background/70 rounded-full backdrop-blur-xl">
-        <SettingsMenu
-          mode={mode}
-          onModeChange={onModeChange}
-          theme={theme}
-          onThemeChange={onThemeChange}
-        />
-      </div>
-    </header>
+    </div>
   )
 }
 
@@ -223,6 +222,8 @@ function Header({
 function StatCard({
   theme,
   mode,
+  time,
+  showBrand = true,
   label,
   caption,
   value,
@@ -230,56 +231,70 @@ function StatCard({
 }: {
   theme: KioskColorTheme
   mode: KioskThemeMode
+  time: string
+  /** Alternating cards skip the repeated logo/time block — the reserved
+   *  `h-17.75` row stays empty rather than collapsing, so every card in the
+   *  row still lines up at the same height. */
+  showBrand?: boolean
   label: string
   caption?: string
   value: React.ReactNode
   footer?: React.ReactNode
 }) {
   return (
-    <Card
-      variant="default"
-      padding="none"
-      elevation="none"
-      borderless
-      className={cn("relative flex flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
-      style={kioskCardStyle(theme, mode)}
-    >
-      {/* Decorative mark, centered on the card and behind everything else —
-          placed first so it paints under the (also absolutely-positioned)
-          value below. */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <CardBackgroundMark />
+    // The brand block sits outside (above) the card itself — on the page
+    // background, not the card surface — repeating per column instead of
+    // once in a shared page header (see `CardBrand`).
+    <div className="flex flex-col">
+      <div className="flex h-17.75 items-center">
+        {showBrand && <CardBrand time={time} mode={mode} theme={theme} />}
       </div>
 
-      {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
-          even though this header is a single line for cards with no
-          `caption`, reserving the same space keeps the value below starting
-          at the same height on every card in the row. */}
-      <div className="flex h-25.5 items-start justify-center">
-        <div className="text-center">
-          {/* Plain string concatenation, not `cn()` — `cn`'s tailwind-merge
-              doesn't know about the custom `text-pulse-*` theme keys and
-              misreads them as conflicting with a `text-color` utility (e.g.
-              `text-foreground-strong`), silently dropping whichever comes
-              first. */}
-          <span className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
-            {label}
-          </span>
-          {caption && <p className="text-pulse-sm mt-0.5 leading-5 text-muted-foreground">{caption}</p>}
+      <Card
+        variant="default"
+        padding="none"
+        elevation="none"
+        borderless
+        className={cn("relative flex flex-1 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme))}
+        style={kioskCardStyle(theme, mode)}
+      >
+        {/* Decorative mark, centered on the card and behind everything else —
+            placed first so it paints under the (also absolutely-positioned)
+            value below. */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <CardBackgroundMark />
         </div>
-      </div>
-      {/* Centered on the card as a whole (not the space between title and
-          footer) — `absolute inset-0` positions it against the `Card`'s own
-          padding box, independent of the title/footer's own flow. The inner
-          `h-44` box is the fixed-size "slot" for the value (fits `BigValue`
-          + its label with a little slack); content top-aligns within it, so
-          the figure's own top edge stays put regardless of label length —
-          only the (centered) slot itself moves as a whole. */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex h-44 items-start justify-center">{value}</div>
-      </div>
-      <div className="flex items-end justify-center">{footer}</div>
-    </Card>
+
+        {/* Fixed height, sized to fit `Panel`'s two-line title + subtitle —
+            even though this header is a single line for cards with no
+            `caption`, reserving the same space keeps the value below starting
+            at the same height on every card in the row. */}
+        <div className="flex h-25.5 items-start justify-center">
+          <div className="text-center">
+            {/* Plain string concatenation, not `cn()` — `cn`'s tailwind-merge
+                doesn't know about the custom `text-pulse-*` theme keys and
+                misreads them as conflicting with a `text-color` utility (e.g.
+                `text-foreground-strong`), silently dropping whichever comes
+                first. */}
+            <span className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
+              {label}
+            </span>
+            {caption && <p className="text-pulse-sm mt-0.5 leading-5 text-muted-foreground">{caption}</p>}
+          </div>
+        </div>
+        {/* Centered on the card as a whole (not the space between title and
+            footer) — `absolute inset-0` positions it against the `Card`'s own
+            padding box, independent of the title/footer's own flow. The inner
+            `h-44` box is the fixed-size "slot" for the value (fits `BigValue`
+            + its label with a little slack); content top-aligns within it, so
+            the figure's own top edge stays put regardless of label length —
+            only the (centered) slot itself moves as a whole. */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex h-44 items-start justify-center">{value}</div>
+        </div>
+        <div className="flex items-end justify-center">{footer}</div>
+      </Card>
+    </div>
   )
 }
 
@@ -290,7 +305,7 @@ function YoyBadge({ pct }: { pct: number }) {
   return (
     <Badge variant="success" size="sm" className="gap-1">
       <TrendingUp className="size-3" aria-hidden />
-      <span className="text-pulse-sm font-medium leading-none tabular-nums">{pct.toFixed(2)}% YoY</span>
+      <span className="text-pulse-sm font-semibold leading-none tabular-nums">{pct.toFixed(2)}% YoY</span>
     </Badge>
   )
 }
