@@ -36,7 +36,7 @@ const MARKET: MarketState = {
 // background marks (see `markColumnWidths` on `StatCard`) so the two rows'
 // columns line up instead of drifting apart. Equal and sized close to the
 // mark's own ~361px width (narrower than the default `w-95`, to fit two side
-// by side on a 1.5fr card column) rather than fit to each value's own (very
+// by side on a 2fr card column) rather than fit to each value's own (very
 // different) text width — otherwise the narrower Volume column would force
 // its mark to overflow past its column and overlap the value's own digits.
 const TWO_VALUE_COLUMN_WIDTHS = ["w-88", "w-88"]
@@ -100,7 +100,6 @@ export function LivePulseDisplayWide() {
                 time={time}
                 backgroundMarks={2}
                 markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
-                cardClassName="px-9.75"
                 label="Total transactions"
                 caption="LiveX Week"
                 value={
@@ -127,7 +126,6 @@ export function LivePulseDisplayWide() {
                 showBrand={false}
                 backgroundMarks={2}
                 markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
-                cardClassName="px-9.75"
                 label="Total R.E. Activities"
                 caption="LiveX Week"
                 value={
@@ -179,7 +177,6 @@ export function LivePulseDisplayWide() {
                 time={time}
                 backgroundMarks={2}
                 markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
-                cardClassName="px-9.75"
                 label="Total transactions"
                 caption="Year to date"
                 value={
@@ -266,7 +263,6 @@ function StatCard({
   backgroundMarks = 1,
   markColumnWidths,
   className,
-  cardClassName,
   label,
   caption,
   value,
@@ -294,8 +290,6 @@ function StatCard({
   markColumnWidths?: string[]
   /** Extra classes on the grid cell itself — e.g. `col-span-2` for a wider card. */
   className?: string
-  /** Extra classes on the `Card` surface itself — e.g. extra x padding for a narrower card. */
-  cardClassName?: string
   label: string
   caption?: string
   value: React.ReactNode
@@ -315,7 +309,7 @@ function StatCard({
         padding="none"
         elevation="none"
         borderless
-        className={cn("relative flex h-112 flex-col justify-between rounded-none p-7.75", kioskCardBgClass(theme), cardClassName)}
+        className={cn("relative flex h-112 flex-col justify-between rounded-none py-7.75 px-9.75", kioskCardBgClass(theme))}
         style={kioskCardStyle(theme, mode)}
       >
         {/* Decorative mark, centered on the same (nudged-down) space the
@@ -397,7 +391,7 @@ function HighlightsCard({
         padding="none"
         elevation="none"
         borderless
-        className={cn("relative flex h-112 flex-col rounded-none p-7.75", kioskCardBgClass(theme))}
+        className={cn("relative flex h-112 flex-col rounded-none py-7.75 px-9.75", kioskCardBgClass(theme))}
         style={kioskCardStyle(theme, mode)}
       >
         <div className="text-center">
