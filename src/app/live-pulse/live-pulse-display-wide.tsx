@@ -31,15 +31,15 @@ const MARKET: MarketState = {
   },
 }
 
-// Column widths for the "Total transactions" card's Volume/Value pair —
-// shared between the value columns and their background marks (see
-// `markColumnWidths` on `StatCard`) so the two rows' columns line up instead
-// of drifting apart. Equal and sized close to the mark's own ~361px width
-// (narrower than the default `w-95`, to fit two side by side on this card's
-// narrower column) rather than fit to each value's own (very different)
-// text width — otherwise the narrower Volume column would force its mark to
-// overflow past its column and overlap the value's own digits.
-const TOTAL_TRANSACTIONS_VALUE_WIDTHS = ["w-88", "w-88"]
+// Column widths for a Volume/Value pair (the "Total transactions" and "Total
+// R.E. Activities" cards) — shared between the value columns and their
+// background marks (see `markColumnWidths` on `StatCard`) so the two rows'
+// columns line up instead of drifting apart. Equal and sized close to the
+// mark's own ~361px width (narrower than the default `w-95`, to fit two side
+// by side on a 1.5fr card column) rather than fit to each value's own (very
+// different) text width — otherwise the narrower Volume column would force
+// its mark to overflow past its column and overlap the value's own digits.
+const TWO_VALUE_COLUMN_WIDTHS = ["w-88", "w-88"]
 
 /**
  * "Live Pulse" — the kiosk board for the LIVEX exhibition stand, fixed at
@@ -91,7 +91,7 @@ export function LivePulseDisplayWide() {
             <div
               className={cn(
                 "grid min-h-0 flex-1 gap-2",
-                developmentVisible ? "grid-cols-[1.5fr_repeat(5,1fr)]" : "grid-cols-[1.5fr_repeat(4,1fr)]",
+                developmentVisible ? "grid-cols-[1.5fr_1.5fr_repeat(3,1fr)]" : "grid-cols-[1.5fr_1.5fr_repeat(2,1fr)]",
               )}
             >
               <StatCard
@@ -99,16 +99,16 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 time={time}
                 backgroundMarks={2}
-                markColumnWidths={TOTAL_TRANSACTIONS_VALUE_WIDTHS}
+                markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
                 cardClassName="px-9.75"
                 label="Total transactions"
                 caption="LiveX Week"
                 value={
                   <div className="flex items-start gap-8">
-                    <ValueColumn className={TOTAL_TRANSACTIONS_VALUE_WIDTHS[0]}>
+                    <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
                       <CountValue value={market.transactionsToday} label="Volume" theme={theme} />
                     </ValueColumn>
-                    <ValueColumn className={TOTAL_TRANSACTIONS_VALUE_WIDTHS[1]}>
+                    <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[1]}>
                       <CurrencyValue value={market.totalMarketValue} label="Value" theme={theme} />
                     </ValueColumn>
                   </div>
@@ -125,9 +125,21 @@ export function LivePulseDisplayWide() {
                 mode={mode}
                 time={time}
                 showBrand={false}
+                backgroundMarks={2}
+                markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
+                cardClassName="px-9.75"
                 label="Total R.E. Activities"
-                caption="LiveX Week"
-                value={<CurrencyValue value={market.totalMarketValue} theme={theme} />}
+                caption="including the lease"
+                value={
+                  <div className="flex items-start gap-8">
+                    <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
+                      <CountValue value={market.transactionsToday} label="Volume" theme={theme} />
+                    </ValueColumn>
+                    <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[1]}>
+                      <CurrencyValue value={market.totalMarketValue} label="Value" theme={theme} />
+                    </ValueColumn>
+                  </div>
+                }
               />
 
               <StatCard
@@ -155,7 +167,7 @@ export function LivePulseDisplayWide() {
                   value={<CurrencyValue value={market.development.value} theme={theme} />}
                   footer={
                     <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
-                      {market.development.count} EOIs
+                      {market.development.count} EOIs Volume
                     </p>
                   }
                 />
@@ -279,7 +291,7 @@ function StatCard({
         {/* Decorative mark, centered on the same (nudged-down) space the
             value below is centered on and behind everything else — placed
             first so it paints under the (also absolutely-positioned) value. */}
-        <div className="pointer-events-none absolute inset-x-0 top-8 bottom-0 flex items-center justify-center gap-16">
+        <div className="pointer-events-none absolute inset-x-0 top-8 bottom-0 flex items-center justify-center gap-8">
           {Array.from({ length: backgroundMarks }, (_, i) => (
             <div key={i} className={cn("flex items-center justify-center", markColumnWidths?.[i] ?? "w-95")}>
               <CardBackgroundMark />
