@@ -144,6 +144,7 @@ export function LivePulseDisplayWide() {
                 theme={theme}
                 mode={mode}
                 time={time}
+                showBrand={false}
                 label="Top transaction"
                 caption="LiveX Week"
                 value={<CurrencyValue value={market.topTransactionValue} theme={theme} />}
@@ -159,7 +160,6 @@ export function LivePulseDisplayWide() {
                   theme={theme}
                   mode={mode}
                   time={time}
-                  showBrand={false}
                   label="Expression of Interests"
                   caption="LiveX Week"
                   value={<CurrencyValue value={market.development.value} label="Total Value" theme={theme} />}
@@ -175,6 +175,7 @@ export function LivePulseDisplayWide() {
                 theme={theme}
                 mode={mode}
                 time={time}
+                showBrand={false}
                 backgroundMarks={2}
                 markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
                 label="Total transactions"
