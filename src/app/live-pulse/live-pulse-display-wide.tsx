@@ -91,7 +91,7 @@ export function LivePulseDisplayWide() {
             <div
               className={cn(
                 "grid min-h-0 flex-1 gap-2",
-                developmentVisible ? "grid-cols-[1.5fr_1.5fr_1fr_1fr_1.5fr]" : "grid-cols-[1.5fr_1.5fr_1fr_1.5fr]",
+                developmentVisible ? "grid-cols-[2fr_2fr_1fr_1fr_2fr_1fr]" : "grid-cols-[2fr_2fr_1fr_2fr_1fr]",
               )}
             >
               <StatCard
@@ -104,7 +104,7 @@ export function LivePulseDisplayWide() {
                 label="Total transactions"
                 caption="LiveX Week"
                 value={
-                  <div className="flex items-start gap-8">
+                  <div className="flex items-start">
                     <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
                       <CountValue value={market.transactionsToday} label="Volume" theme={theme} />
                     </ValueColumn>
@@ -131,7 +131,7 @@ export function LivePulseDisplayWide() {
                 label="Total R.E. Activities"
                 caption="LiveX Week"
                 value={
-                  <div className="flex items-start gap-8">
+                  <div className="flex items-start">
                     <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
                       <CountValue value={market.transactionsToday} label="Volume" theme={theme} />
                     </ValueColumn>
@@ -183,7 +183,7 @@ export function LivePulseDisplayWide() {
                 label="Total transactions"
                 caption="Year to date"
                 value={
-                  <div className="flex items-start gap-16">
+                  <div className="flex items-start gap-8">
                     <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
                       <CountValue value={market.yearToDate.transactionsCount} label="Volume" theme={theme} />
                     </ValueColumn>
@@ -192,6 +192,24 @@ export function LivePulseDisplayWide() {
                     </ValueColumn>
                   </div>
                 }
+              />
+
+              <HighlightsCard
+                theme={theme}
+                mode={mode}
+                time={time}
+                showBrand={false}
+                label=""
+                items={[
+                  <><span className="text-primary">1st</span> worldwide improver and fully transparent market</>,
+                  <><span className="text-primary">1st</span> in Livability Index, MENA region</>,
+                  <>
+                    Residential YoY growth <span className="text-primary">+50%</span>
+                  </>,
+                  <>
+                    Nationalities YoY growth <span className="text-primary">+60%</span>
+                  </>,
+                ]}
               />
             </div>
           </div>
@@ -345,6 +363,64 @@ function StatCard({
   )
 }
 
+/* ─── Highlights card ─────────────────────────────────────────────────────── */
+
+/** A bulleted-fact card (market rankings, YoY growth) alongside the numeric
+ *  `StatCard`s — same brand row + card shell, but no decorative background
+ *  mark or centered value slot, since dense list text needs the flat reading
+ *  space rather than a hero number. Kept at the board's own kiosk type scale
+ *  (`text-pulse-*`, not the DS's much smaller `t-body-*`) so it reads at the
+ *  same distance as every other card. */
+function HighlightsCard({
+  theme,
+  mode,
+  time,
+  showBrand = true,
+  label,
+  items,
+}: {
+  theme: KioskColorTheme
+  mode: KioskThemeMode
+  time: string
+  showBrand?: boolean
+  label: string
+  items: React.ReactNode[]
+}) {
+  return (
+    <div className="flex flex-col">
+      <div className="flex h-17.75 items-center">
+        {showBrand && <CardBrand time={time} mode={mode} theme={theme} />}
+      </div>
+
+      <Card
+        variant="default"
+        padding="none"
+        elevation="none"
+        borderless
+        className={cn("relative flex h-112 flex-col rounded-none p-7.75", kioskCardBgClass(theme))}
+        style={kioskCardStyle(theme, mode)}
+      >
+        <div className="text-center">
+          <span className={`text-pulse-md font-display font-semibold leading-8.75 tracking-tight ${kioskTitleClass(theme)}`}>
+            {label}
+          </span>
+        </div>
+
+        <ul className="mt-6 flex flex-1 flex-col justify-center gap-6">
+          {items.map((item, i) => (
+            <li key={i} className="flex items-start gap-4">
+              <span aria-hidden className="mt-2.5 size-2.5 shrink-0 rounded-full bg-foreground-strong" />
+              <span className="text-pulse-md font-display font-regular leading-7.5 tracking-tight text-foreground-strong">
+                {item}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </div>
+  )
+}
+
 /** Big tabular-nums figure shared by every main value block on this board —
  *  one typography treatment regardless of what (if anything) labels it.
  *  Accent-coloured under the default theme (every numerical value on the
@@ -407,7 +483,7 @@ function CurrencyValue({ value, theme, label }: { value: number; theme: KioskCol
   return (
     <span className="inline-flex flex-col items-center">
       <span className={`inline-flex items-center gap-3 ${theme === "theme1" ? "text-foreground-strong" : "text-primary"}`}>
-        <DirhamSign className="h-22 w-auto" />
+        <DirhamSign className="h-17 w-auto" />
         <BigValue theme={theme}>{formatAED(value)}</BigValue>
       </span>
       {label && <span className="text-pulse-lg font-display font-regular leading-6 tracking-tight text-foreground">{label}</span>}
