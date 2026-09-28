@@ -301,12 +301,12 @@ function StatCard({
 
 /** Year-over-year delta pill for the two "year to date" cards — mirrors the
  *  ADREC website's own trend badge (a `success`-tinted pill with an up arrow
- *  and a percentage) rather than inventing a new treatment. */
+ *  and a number) rather than inventing a new treatment. */
 function YoyBadge({ pct }: { pct: number }) {
   return (
     <Badge variant="success" size="sm" className="gap-1">
       <TrendingUp className="size-3" aria-hidden />
-      <span className="text-pulse-sm font-semibold leading-none tabular-nums">{pct.toFixed(2)}%</span>
+      <span className="text-pulse-sm font-semibold leading-none tabular-nums">{pct.toFixed(2)}</span>
     </Badge>
   )
 }
