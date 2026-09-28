@@ -21,7 +21,7 @@ import {
 // `transactionsToday`/`totalMarketValue` count Sell + Lease only — Development
 // (Expression of Interest) leads aren't transactions, so they're excluded.
 const MARKET: MarketState = {
-  transactionsToday: 47,
+  transactionsToday: 238,
   totalMarketValue: 66_000_000,
   topTransactionValue: 4_800_000,
   // `value` is a placeholder — no real EOI valuation source exists yet.
@@ -91,7 +91,7 @@ export function LivePulseDisplayWide() {
             <div
               className={cn(
                 "grid min-h-0 flex-1 gap-2",
-                developmentVisible ? "grid-cols-[1.5fr_1.5fr_repeat(3,1fr)]" : "grid-cols-[1.5fr_1.5fr_repeat(2,1fr)]",
+                developmentVisible ? "grid-cols-[1.5fr_1.5fr_1fr_1fr_1.5fr]" : "grid-cols-[1.5fr_1.5fr_1fr_1.5fr]",
               )}
             >
               <StatCard
@@ -113,11 +113,11 @@ export function LivePulseDisplayWide() {
                     </ValueColumn>
                   </div>
                 }
-                footer={
-                  <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
-                    Session started {sessionStart}
-                  </p>
-                }
+                // footer={
+                //   <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
+                //     Session started {sessionStart}
+                //   </p>
+                // }
               />
 
               <StatCard
@@ -129,7 +129,7 @@ export function LivePulseDisplayWide() {
                 markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
                 cardClassName="px-9.75"
                 label="Total R.E. Activities"
-                caption="including the lease"
+                caption="LiveX Week"
                 value={
                   <div className="flex items-start gap-8">
                     <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
@@ -151,7 +151,7 @@ export function LivePulseDisplayWide() {
                 value={<CurrencyValue value={market.topTransactionValue} theme={theme} />}
                 footer={
                   <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
-                    Sell · Off-plan · Masdar City
+                    Sell · Off-plan
                   </p>
                 }
               />
@@ -164,7 +164,7 @@ export function LivePulseDisplayWide() {
                   showBrand={false}
                   label="Expression of Interests"
                   caption="LiveX Week"
-                  value={<CurrencyValue value={market.development.value} theme={theme} />}
+                  value={<CurrencyValue value={market.development.value} label="Total Value" theme={theme} />}
                   footer={
                     <p className="text-pulse-sm text-center font-regular leading-5 tracking-tight text-muted-foreground">
                       {market.development.count} EOIs Volume
@@ -177,9 +177,21 @@ export function LivePulseDisplayWide() {
                 theme={theme}
                 mode={mode}
                 time={time}
+                backgroundMarks={2}
+                markColumnWidths={TWO_VALUE_COLUMN_WIDTHS}
+                cardClassName="px-9.75"
                 label="Total transactions"
                 caption="Year to date"
-                value={<CountValue value={market.yearToDate.transactionsCount} theme={theme} />}
+                value={
+                  <div className="flex items-start gap-16">
+                    <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[0]}>
+                      <CountValue value={market.yearToDate.transactionsCount} label="Volume" theme={theme} />
+                    </ValueColumn>
+                    <ValueColumn className={TWO_VALUE_COLUMN_WIDTHS[1]}>
+                      <CurrencyValue value={market.totalMarketValue} label="Value" theme={theme} />
+                    </ValueColumn>
+                  </div>
+                }
               />
             </div>
           </div>
