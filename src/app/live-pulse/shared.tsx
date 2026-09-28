@@ -203,7 +203,6 @@ export interface MarketState {
   development: { count: number; value: number }
   yearToDate: {
     transactionsCount: number
-    marketValue: number
   }
 }
 
